@@ -14,7 +14,7 @@ const WALL_PHRASES = [/javascript is (not available|disabled)/i, /enable javascr
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", "#39": "'" };
 
-function decodeEntities(text: string): string {
+export function decodeEntities(text: string): string {
   return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z0-9]+);/gi, (match, code: string) => {
     if (code.startsWith("#x") || code.startsWith("#X")) return String.fromCodePoint(parseInt(code.slice(2), 16));
     if (code.startsWith("#")) return String.fromCodePoint(parseInt(code.slice(1), 10));

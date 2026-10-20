@@ -45,10 +45,13 @@ describe("verifyItem (does the item make the issue?)", () => {
     ]);
   });
 
-  it("drops old or undated items, unless the age check is off", () => {
-    expect(verifyItem({ summary, verdict, pageText, publishedDate: "2026-09-01" }, options)).toEqual(["published 49 days ago, max 14"]);
-    expect(verifyItem({ summary, verdict, pageText, publishedDate: null }, options)).toEqual(["no published date found"]);
-    expect(verifyItem({ summary, verdict, pageText, publishedDate: null }, { ...options, checkAge: false })).toEqual([]);
+  it("drops dated items older than a week, unless the age check is off", () => {
+    expect(verifyItem({ summary, verdict, pageText, publishedDate: "2026-10-10" }, options)).toEqual(["published 10 days ago, max 7"]);
+    expect(verifyItem({ summary, verdict, pageText, publishedDate: "2026-10-10" }, { ...options, checkAge: false })).toEqual([]);
+  });
+
+  it("allows undated items, since memory stops them repeating", () => {
+    expect(verifyItem({ summary, verdict, pageText, publishedDate: null }, options)).toEqual([]);
   });
 });
 

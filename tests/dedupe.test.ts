@@ -16,15 +16,11 @@ const entry = (overrides: Partial<SeenEntry>): SeenEntry => ({
 describe("pruneSeen", () => {
   const now = new Date("2026-10-20T00:00:00Z");
 
-  it("drops passed and rejected entries older than the retention window", () => {
-    const old = entry({ firstSeen: "2026-06-01T00:00:00.000Z" });
+  it("drops every entry older than the retention window, featured or not", () => {
+    const old = entry({ firstSeen: "2026-09-01T00:00:00.000Z" });
+    const oldFeatured = entry({ key: "example.com/f", status: "featured", firstSeen: "2026-09-01T00:00:00.000Z" });
     const recent = entry({ key: "example.com/b", firstSeen: "2026-10-10T00:00:00.000Z" });
-    expect(pruneSeen([old, recent], now, 90)).toEqual([recent]);
-  });
-
-  it("keeps featured entries forever, so they can never repeat", () => {
-    const ancient = entry({ status: "featured", firstSeen: "2025-01-01T00:00:00.000Z" });
-    expect(pruneSeen([ancient], now, 90)).toEqual([ancient]);
+    expect(pruneSeen([old, oldFeatured, recent], now, 30)).toEqual([recent]);
   });
 });
 

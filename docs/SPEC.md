@@ -53,7 +53,7 @@ seed sweep ──► explore ──► dedupe + quota check ──► read & sum
 3. **Dedupe and quota check (code):** canonicalise URLs, drop anything already seen, then count what's left against the quotas. If explore falls short, send it back with the specific gap (for example, "3 new sources, need 10; theme 4 has no searches"), up to 2 retries. If it still falls short, record the shortfall and carry on.
 4. **Read and summarise:** for each new candidate, fetch the page and produce the card: one-line idea, 3–5 "how it works" bullets, "steal this", "go deeper if", theme, content type, time to read or watch, and one short verified quote.
 5. **Judge (Opus):** apply the teaching-moment test with the rubric. Output: pass or fail, score from 1 to 10, theme, one-line reason. Structured output, so the result always parses.
-6. **Verify (code):** decides only whether the item makes the issue: the judge passed it with a score of at least 5, it was published within 14 days, and the card isn't empty. **Presentation never drops an item.** Card shape is tidied before judging (below), and a quote that's too long or not found on the fetched page is removed, not the item.
+6. **Verify (code):** decides only whether the item makes the issue: the judge passed it with a score of at least 5, it was published within 7 days (undated items are allowed), and the card isn't empty. **Presentation never drops an item.** Card shape is tidied before judging (below), and a quote that's too long or not found on the fetched page is removed, not the item.
 7. **Store (code):** passing items go into this week's pool; everything considered goes into `state/seen.jsonl`; source stats are updated; the run log is written.
 
 ### Explore quotas (enforced in code)
@@ -108,8 +108,10 @@ Shape limits (3–5 bullets of at most 25 words, a short idea and "go deeper if"
 ## Dedupe without months of maintenance
 
 - **Canonical URL key:** lowercase host, strip `www.`, tracking parameters (`utm_*`, `ref`, `fbclid`...), fragments and trailing slashes. YouTube links reduce to the video ID; GitHub links reduce to `owner/repo`, except issues, pull requests and discussions, which stay distinct. `twitter.com` and `x.com` are treated as one.
-- **`state/seen.jsonl`:** one line per URL ever considered: `{key, url, title, firstSeen, status}` where `status` is `featured`, `passed`, or `rejected`.
-- **Self-pruning:** each run drops `passed` and `rejected` lines older than 90 days. `featured` lines are kept forever (about 300 a year, trivial). The file stays bounded with zero manual upkeep.
+- **`state/seen.jsonl`:** one line per URL considered in the last 30 days: `{key, url, title, firstSeen, status}` where `status` is `featured`, `passed`, or `rejected`.
+- **A rolling window:** each run adds new links and prunes anything first seen more than 30 days ago. At ~150 links a week that's a steady 600–700 lines (~130KB) forever. There's no keep-forever list; `issues/` is the permanent record.
+- **Code-only:** dedupe is a lookup in TypeScript. The file is never put in a prompt, so its size costs no tokens.
+- **Freshness does most of the work:** dated items older than 7 days are dropped, and the window is longer than that, so anything that ages out of memory would fail freshness anyway. Undated items (many repos, threads, videos) are allowed; memory stops them repeating for 30 days. The odd one resurfacing after that is accepted.
 - **Same story, different URL:** a cheap title-similarity check in code catches obvious duplicates, and the weekly grouping step catches the rest.
 
 ## Sources
@@ -189,6 +191,8 @@ harness-digest/
 6. Watch for a week; tune the rubric, quotas and limits.
 
 ## Later, not v1
+
+- **X as a source (costs real money, so only once the digest has proved useful).** X blocks page fetches, but the pay-per-use API ($0.005 per post read) works. Design: follow a curated list of about 30 accounts, read their new original posts each scan, keep only X Articles (the API's `article` field carries the text), posts linking to outside articles or repos (fed into the normal pipeline), and long posts above an engagement threshold. Cap reads in code (150 per scan, about $10 a month at most) and use prepaid credits with auto-recharge off. Check the `article` field's shape with one test call first.
 
 - Thumbs up or down feedback from the email, feeding source scores.
 - Render `issues/` on shan8851.com.

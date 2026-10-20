@@ -1,9 +1,10 @@
-// The harness's memory: everything it has ever considered, so nothing is
-// summarised or featured twice. Stored as state/seen.jsonl (one JSON object
-// per line) because it's append-friendly and diffs cleanly in git.
+// The harness's memory: every link considered in the last
+// MEMORY.seenRetentionDays, so nothing is judged or featured twice. Stored as
+// state/seen.jsonl (one JSON object per line) because it diffs cleanly in git.
 //
-// It maintains itself: entries that never made an issue are pruned after
-// MEMORY.seenRetentionDays, so the file stays small without anyone tidying it.
+// It's a rolling window: new links are added, old ones pruned on every run,
+// so the file stays the same size forever. Code reads it; no model ever does.
+// The odd undated item may resurface after the window. That's accepted.
 
 import { readFile, writeFile } from "node:fs/promises";
 import { MEMORY } from "../../config/settings.js";
@@ -37,10 +38,10 @@ export async function saveSeen(path: string, entries: SeenEntry[]): Promise<void
   await writeFile(path, entries.map((e) => JSON.stringify(e)).join("\n") + "\n", "utf8");
 }
 
-/** Drops old non-featured entries. Featured items are kept forever so they can never repeat. */
+/** Drops entries first seen longer ago than the retention window. */
 export function pruneSeen(entries: SeenEntry[], now: Date, retentionDays: number = MEMORY.seenRetentionDays): SeenEntry[] {
   const cutoff = now.getTime() - retentionDays * 24 * 60 * 60 * 1000;
-  return entries.filter((e) => e.status === "featured" || Date.parse(e.firstSeen) >= cutoff);
+  return entries.filter((e) => Date.parse(e.firstSeen) >= cutoff);
 }
 
 const STOPWORDS = new Set([

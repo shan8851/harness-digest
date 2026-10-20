@@ -69,6 +69,17 @@ export function quoteProblems(quote: string, pageText: string): string[] {
 }
 
 /**
+ * Why a dated item is too old to bother with, or null if it's fresh (or
+ * undated). Cheap enough to run straight after fetching a page, before any
+ * model sees it.
+ */
+export function tooOld(publishedDate: string | null, now: Date): string | null {
+  if (!publishedDate) return null;
+  const ageDays = (now.getTime() - Date.parse(publishedDate)) / (24 * 60 * 60 * 1000);
+  return ageDays > ITEMS.maxAgeDays ? `published ${Math.floor(ageDays)} days ago, max ${ITEMS.maxAgeDays}` : null;
+}
+
+/**
  * Whether the item makes the issue at all. Only quality and freshness decide
  * that, plus a card too empty to show. Returns the reasons to drop it; an
  * empty list means it's in.
@@ -85,14 +96,9 @@ export function verifyItem(input: VerifyInput, options: VerifyOptions): string[]
   }
   if (!summary.howItWorks.some((b) => b.trim())) problems.push('card has no "how it works" bullets');
 
-  if (options.checkAge) {
-    if (!input.publishedDate) {
-      problems.push("no published date found");
-    } else {
-      const ageDays = (options.now.getTime() - Date.parse(input.publishedDate)) / (24 * 60 * 60 * 1000);
-      if (ageDays > ITEMS.maxAgeDays) problems.push(`published ${Math.floor(ageDays)} days ago, max ${ITEMS.maxAgeDays}`);
-    }
-  }
+  // Undated items (many repos, threads, videos) pass: memory stops repeats.
+  const age = options.checkAge ? tooOld(input.publishedDate, options.now) : null;
+  if (age) problems.push(age);
 
   return problems;
 }

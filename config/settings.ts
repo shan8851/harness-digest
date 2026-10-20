@@ -62,6 +62,13 @@ export const RUN_LIMITS = {
   maxTokensPerRun: 5_000_000,
 } as const;
 
+export const SEED_SWEEP = {
+  // At most this many new candidates from any one seed per scan, so a busy
+  // feed (or a first run with an empty memory) can't swamp the pipeline.
+  maxItemsPerSeed: 10,
+  fetchTimeoutMs: 20_000,
+} as const;
+
 // Sites the harness never looks at. X only serves content to a logged-in
 // browser, so fetching it returns a sign-in wall. These are excluded from web
 // search, dropped before they count as candidates, and refused at fetch time.
@@ -84,16 +91,19 @@ export const ITEMS = {
   // A card that breaks the shape limits is sent back with the exact problems
   // this many times before the item is dropped.
   maxCardRevisions: 2,
-  // Items published longer ago than this fail verification.
-  maxAgeDays: 14,
+  // Dated items published longer ago than this are dropped. Undated items
+  // (many repos, threads, videos) are allowed; memory stops them repeating.
+  maxAgeDays: 7,
   // The judge's score must be at least this to pass, whatever it says.
   minScore: 5,
 } as const;
 
 export const MEMORY = {
-  // `passed` and `rejected` entries in state/seen.jsonl older than this are
-  // pruned; `featured` entries are kept forever.
-  seenRetentionDays: 90,
+  // Entries in state/seen.jsonl older than this are pruned on every run, so
+  // the file stays at a steady ~600-700 lines however long the harness runs.
+  // Longer than maxAgeDays, so anything that ages out of memory would already
+  // fail the freshness check. The issues/ archive is the permanent record.
+  seenRetentionDays: 30,
   // Two titles at or above this word-overlap score count as the same story.
   titleSimilarityThreshold: 0.8,
   // A scan never looks back further than this, even after a long outage.
