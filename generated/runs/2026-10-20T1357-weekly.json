@@ -1,0 +1,58 @@
+{
+  "summary": "weekly · ok · 3s · 0.001M in · 0.000M out · 0 searches · 0 fetches",
+  "id": "2026-10-20T1357-weekly",
+  "kind": "weekly",
+  "status": "ok",
+  "startedAt": "2026-10-20T13:57:52.937Z",
+  "finishedAt": "2026-10-20T13:57:55.786Z",
+  "lookbackFrom": null,
+  "quotas": null,
+  "counts": null,
+  "explore": null,
+  "totals": {
+    "inputTokens": 739,
+    "outputTokens": 159,
+    "cacheWriteTokens": 0,
+    "cacheReadTokens": 0,
+    "webSearches": 0,
+    "webFetches": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "phases": [
+    {
+      "summary": "intro · sonnet-5-5 · 2s · 0.001M in · 0.000M out · 0 searches · 0 fetches",
+      "name": "intro",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-10-20T13:57:52.948Z",
+      "durationSeconds": 2.4,
+      "usage": {
+        "inputTokens": 739,
+        "outputTokens": 159,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": []
+    },
+    {
+      "summary": "email · code · 0s",
+      "name": "email",
+      "model": null,
+      "startedAt": "2026-10-20T13:57:55.394Z",
+      "durationSeconds": 0.4,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "sent (Resend id 01a1599a-bee4-7254-afc2-ef85ea089283)"
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # harness-digest
 
-A small public agent harness: three scans a week (Mon, Wed, Fri) find instructive agentic-engineering material, and a weekly issue emails the best of it. The design is in [docs/SPEC.md](docs/SPEC.md); read it before changing behaviour.
+A small public agent harness: two scans a week (Monday and Thursday) find instructive agentic-engineering material, and a weekly issue on Sunday emails the best of it. The design is in [docs/SPEC.md](docs/SPEC.md); read it before changing behaviour.
 
 ## Commands
 
@@ -15,7 +15,9 @@ A small public agent harness: three scans a week (Mon, Wed, Fri) find instructiv
 - `config/sources.json`: seed sources and their stats. The scan updates it.
 - `src/lib/`: deterministic, pure-ish helpers with tests (URLs, dedupe, quotas, usage, run logs).
 - `src/phases/`: one file per pipeline phase. Phases are where the API is called.
-- `state/`, `runs/`, `issues/`: written by the workflows and committed. Don't hand-edit except to fix a bad entry.
+- `generated/`: memory, the weekly pool and run logs, written by runs and committed. Don't hand-edit except to fix a bad entry. All paths are in `PATHS` in settings.
+- `issues/`: the weekly issues, the readable archive.
+- `docs/ROADMAP.md`: tuning ideas and later features. Let it run before tuning.
 
 ## Principles (from the spec)
 

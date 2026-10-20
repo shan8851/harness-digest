@@ -1,1 +1,3 @@
 * text=auto eol=lf
+# Written by the harness: GitHub collapses these in diffs and leaves them out of language stats.
+generated/** linguist-generated=true

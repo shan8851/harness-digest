@@ -1,12 +1,13 @@
 // The harness's memory: every link considered in the last
 // MEMORY.seenRetentionDays, so nothing is judged or featured twice. Stored as
-// state/seen.jsonl (one JSON object per line) because it diffs cleanly in git.
+// JSONL (one JSON object per line, at PATHS.memory) because it diffs cleanly in git.
 //
 // It's a rolling window: new links are added, old ones pruned on every run,
 // so the file stays the same size forever. Code reads it; no model ever does.
 // The odd undated item may resurface after the window. That's accepted.
 
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
 import { MEMORY } from "../../config/settings.js";
 
 export type SeenStatus = "featured" | "passed" | "rejected";
@@ -35,6 +36,7 @@ export async function loadSeen(path: string): Promise<SeenEntry[]> {
 }
 
 export async function saveSeen(path: string, entries: SeenEntry[]): Promise<void> {
+  await mkdir(dirname(path), { recursive: true });
   await writeFile(path, entries.map((e) => JSON.stringify(e)).join("\n") + "\n", "utf8");
 }
 

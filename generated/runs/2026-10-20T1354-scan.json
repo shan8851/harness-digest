@@ -1,0 +1,180 @@
+{
+  "summary": "scan · ok · 2m 57s · 20 kept of 88 found · 1.601M in · 0.047M out · 30 searches · 0 fetches · quotas met",
+  "id": "2026-10-20T1354-scan",
+  "kind": "scan",
+  "status": "ok",
+  "startedAt": "2026-10-20T13:54:48.356Z",
+  "finishedAt": "2026-10-20T13:57:45.469Z",
+  "lookbackFrom": "2026-10-13T13:54:48.356Z",
+  "quotas": {
+    "met": true,
+    "shortfalls": []
+  },
+  "counts": {
+    "fromSeeds": 73,
+    "fromExplore": 15,
+    "unfetchable": 0,
+    "stale": 40,
+    "judged": 48,
+    "rejected": 28,
+    "kept": 20,
+    "errors": 0,
+    "skippedForLimit": 0
+  },
+  "explore": {
+    "queriesByTheme": {
+      "harness-design": [
+        "CLAUDE.md AGENTS.md instruction file lessons learned October 2026",
+        "subagents context isolation coding agent harness blog",
+        "agent hooks pre-commit guardrails Claude Code hooks setup",
+        "agent memory context engineering tool design my harness what broke",
+        "my agent skills setup SKILL.md workflow what I changed this week"
+      ],
+      "verification": [
+        "coding agent verification proof of work screenshots evidence",
+        "agent self-check tests CI gate AI-generated pull requests October 2026",
+        "evals for coding agent harness how I verify agent output",
+        "Claude Code hooks run tests before done stop hook verification",
+        "agent \"proof of work\" PR evidence reviewer verification workflow reddit OR hackernews"
+      ],
+      "lighter-review": [
+        "spec-driven development agent small diffs review October 2026",
+        "AI code review agent guardrails reduce reviewer burden blog",
+        "reviewing agent-generated pull requests workflow Hacker News",
+        "github repo review subagent skill pre-merge checklist Claude Code",
+        "agent PR evidence tests first review checklist small PRs coding agent this week"
+      ],
+      "non-engineers": [
+        "Claude Code for marketing team workflow skills",
+        "AI agent workflow for designers CLAUDE.md design system constraints",
+        "ops team agent setup non-technical skills files how I built",
+        "agent skills for sales, finance, support teams repo",
+        "non-engineers using coding agents lessons October 2026",
+        "Hacker News Ask HN non-technical team using Claude Code agents workflow",
+        "reddit agent workflow for content marketing guardrails checklist output review",
+        "Claude Cowork plugins finance operations team workflow lessons",
+        "I'm not a developer, my Claude Code setup for running operations, what broke",
+        "brand voice skill review agent checks marketing copy before publish approval gate"
+      ],
+      "real-setups": [
+        "my Claude Code setup CLAUDE.md what broke and what I changed",
+        "my agent harness walkthrough hooks skills subagents lessons learned October 2026",
+        "how I run coding agents in production workflow AGENTS.md postmortem",
+        "Hacker News Show HN my agentic coding workflow repo dotfiles skills",
+        "I rebuilt my coding agent setup after it kept failing: lessons, hooks, verification loop this week"
+      ]
+    },
+    "retries": 1,
+    "weakestTheme": "non-engineers"
+  },
+  "totals": {
+    "inputTokens": 1601381,
+    "outputTokens": 46553,
+    "cacheWriteTokens": 0,
+    "cacheReadTokens": 0,
+    "webSearches": 30,
+    "webFetches": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "phases": [
+    {
+      "summary": "seed sweep · code · 9s",
+      "name": "seed sweep",
+      "model": null,
+      "startedAt": "2026-10-20T13:54:48.360Z",
+      "durationSeconds": 8.5,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "73 candidates from 23/23 seeds"
+      ]
+    },
+    {
+      "summary": "explore · sonnet-5-5 · 33s · 0.806M in · 0.007M out · 30 searches · 0 fetches",
+      "name": "explore",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-10-20T13:54:56.819Z",
+      "durationSeconds": 33.4,
+      "usage": {
+        "inputTokens": 806435,
+        "outputTokens": 7429,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 30,
+        "webFetches": 0
+      },
+      "notes": [
+        "1 retries",
+        "lighter-review: 1 submitted URL(s) weren't in any search result; discarded",
+        "non-engineers: 1 submitted URL(s) weren't in any search result; discarded"
+      ]
+    },
+    {
+      "summary": "summarise · sonnet-5-5 · 2m 15s · 0.435M in · 0.026M out · 0 searches · 0 fetches",
+      "name": "summarise",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-10-20T13:55:30.219Z",
+      "durationSeconds": 135.2,
+      "usage": {
+        "inputTokens": 435092,
+        "outputTokens": 25601,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "https://blog.cloudflare.com/obsessive-inference-optimization/: revised for idea is 36 words, max 35",
+        "https://blog.cloudflare.com/verified-bots-accountability/: revised for \"go deeper if\" is 26 words, max 25",
+        "https://blog.cloudflare.com/cloudflare-openai-discovery-agentic-web/: revised for \"go deeper if\" is 29 words, max 25",
+        "https://developers.googleblog.com/native-model-authoring-for-edge-with-litert-tensor-api/: revised for quote is 29 words, max 25",
+        "https://developers.googleblog.com/step-by-step-guide-build-a-voice-agent-that-never-goes-silent-using-adk/: revised for quote is 27 words, max 25",
+        "https://martinfowler.com/articles/software-meets-hardware.html: revised for quote is 26 words, max 25",
+        "https://martinfowler.com/articles/practitioner-voice.html#TheCraftOfPractitionerVoice: revised for idea is 39 words, max 35",
+        "https://www.latent.space/p/dyna: page text truncated"
+      ]
+    },
+    {
+      "summary": "judge · opus-5-5 · 2m 15s · 0.360M in · 0.014M out · 0 searches · 0 fetches",
+      "name": "judge",
+      "model": "claude-opus-5-5",
+      "startedAt": "2026-10-20T13:55:30.219Z",
+      "durationSeconds": 135.2,
+      "usage": {
+        "inputTokens": 359854,
+        "outputTokens": 13523,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": []
+    },
+    {
+      "summary": "store · code · 0s",
+      "name": "store",
+      "model": null,
+      "startedAt": "2026-10-20T13:57:45.467Z",
+      "durationSeconds": 0,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "88 added to memory",
+        "20 added to the 2026-W43 pool as they passed (7 from explore)"
+      ]
+    }
+  ]
+}

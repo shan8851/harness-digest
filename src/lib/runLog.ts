@@ -1,4 +1,4 @@
-// Every run writes a JSON log to runs/: what each phase did, how many tokens
+// Every run writes a JSON log to PATHS.runs: what each phase did, how many tokens
 // it used, whether the quotas were met, and anything that went wrong. The
 // logs are committed, so the repo is its own debugging trail. They also tell
 // the next scan where to start looking ("when did the last scan succeed?").
@@ -8,7 +8,7 @@
 
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { MEMORY, RUN_LIMITS, type ModelId } from "../../config/settings.js";
+import { MEMORY, RUN_LIMITS, type ModelId, type Theme } from "../../config/settings.js";
 import { addUsage, describeUsage, totalTokens, ZERO_USAGE, type UsageTotals } from "./usage.js";
 import type { QuotaResult } from "./quotas.js";
 
@@ -25,6 +25,19 @@ export interface PhaseLog {
   notes: string[];
 }
 
+/** How many candidates reached each stage of a scan: the pass rate, in numbers. */
+export interface ScanCounts {
+  fromSeeds: number;
+  fromExplore: number;
+  unfetchable: number;
+  stale: number;
+  judged: number;
+  rejected: number;
+  kept: number;
+  errors: number;
+  skippedForLimit: number;
+}
+
 export interface RunLog {
   summary: string; // e.g. "scan · ok · 4m 12s · 1.240M in · 0.060M out · 23 searches · 18 fetches · quotas met"
   id: string; // also the filename, e.g. 2026-10-21T0200-scan
@@ -34,6 +47,8 @@ export interface RunLog {
   finishedAt: string | null;
   lookbackFrom: string | null; // scans only: look for things published after this
   quotas: QuotaResult | null;
+  counts: ScanCounts | null; // scans only
+  explore: { queriesByTheme: Partial<Record<Theme, string[]>>; retries: number; weakestTheme: Theme } | null; // scans only
   totals: UsageTotals;
   warnings: string[];
   errors: { phase: string; message: string }[];
@@ -60,6 +75,8 @@ export function newRunLog(kind: RunKind, now: Date): RunLog {
     finishedAt: null,
     lookbackFrom: null,
     quotas: null,
+    counts: null,
+    explore: null,
     totals: { ...ZERO_USAGE },
     warnings: [],
     errors: [],
@@ -96,7 +113,9 @@ export function finishRun(log: RunLog, now: Date): void {
   else log.status = log.phases.length > 0 ? "partial" : "failed";
 
   const seconds = (now.getTime() - Date.parse(log.startedAt)) / 1000;
-  const parts = [log.kind, log.status, formatDuration(seconds), describeUsage(log.totals)];
+  const parts = [log.kind, log.status, formatDuration(seconds)];
+  if (log.counts) parts.push(`${log.counts.kept} kept of ${log.counts.fromSeeds + log.counts.fromExplore} found`);
+  parts.push(describeUsage(log.totals));
   if (log.quotas) parts.push(log.quotas.met ? "quotas met" : `quotas short (${log.quotas.shortfalls.length})`);
   if (log.warnings.length) parts.push(`${log.warnings.length} warning(s)`);
   if (log.errors.length) parts.push(`${log.errors.length} error(s)`);

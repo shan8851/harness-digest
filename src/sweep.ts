@@ -4,15 +4,16 @@
 //
 //   pnpm sweep
 
-import { readFile } from "node:fs/promises";
+import { PATHS } from "../config/settings.js";
 import { loadSeen } from "./lib/dedupe.js";
 import { lookbackFrom, readRunLogs } from "./lib/runLog.js";
-import { sweepSeeds, type Seed } from "./phases/seedSweep.js";
+import { loadSeeds } from "./lib/sources.js";
+import { sweepSeeds } from "./phases/seedSweep.js";
 
-const { seeds } = JSON.parse(await readFile("config/sources.json", "utf8")) as { seeds: Seed[] };
+const { seeds } = await loadSeeds();
 const now = new Date();
-const since = lookbackFrom(await readRunLogs("runs"), now);
-const seen = await loadSeen("state/seen.jsonl");
+const since = lookbackFrom(await readRunLogs(PATHS.runs), now);
+const seen = await loadSeen(PATHS.memory);
 
 console.log(`Sweeping ${seeds.length} seeds for anything since ${since.toISOString()} (${seen.length} links in memory)\n`);
 const { candidates, reports } = await sweepSeeds(seeds, { since, seen });

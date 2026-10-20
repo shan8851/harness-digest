@@ -4,7 +4,7 @@ Status: draft for review, 2026-10-20. Nothing is built yet.
 
 ## What it is
 
-A small, public harness that runs three times a week, finds instructive material on **agentic engineering** (how people shape AI agents to produce reliable, verified work), and sends me one skimmable digest a week, with links to the originals.
+A small, public harness that scans twice a week, finds instructive material on **agentic engineering** (how people shape AI agents to produce reliable, verified work), and sends me one skimmable digest a week, with links to the originals.
 
 It's also the practice project: the harness itself uses the patterns it reads about (fixed phases, quotas checked in code, a judge, a verifier, memory, token tracking).
 
@@ -38,9 +38,9 @@ Five themes, defined in [`config/themes.md`](../config/themes.md), which is also
 
 Models are set per phase in config, so swapping one is a one-line change.
 
-## The scan (Monday, Wednesday, Friday)
+## The scan (Monday and Thursday)
 
-Three runs a week instead of nightly: this niche doesn't move fast enough to need daily checks, and fewer, deeper runs get more room each (bigger quotas, no tight per-run cap). Each run looks back to the last *successful* run, so a failed run never leaves a gap.
+Two scans a week: this niche doesn't move fast enough to need more, and most of the cost is per article judged (each one only once, thanks to memory), not per scan, so extra scans mainly add explore runs. Each run looks back to the last *successful* run, so a failed run never leaves a gap.
 
 ```
 seed sweep ──► explore ──► dedupe + quota check ──► read & summarise ──► judge ──► verify ──► store
@@ -54,7 +54,7 @@ seed sweep ──► explore ──► dedupe + quota check ──► read & sum
 4. **Read and summarise:** for each new candidate, fetch the page and produce the card: one-line idea, 3–5 "how it works" bullets, "steal this", "go deeper if", theme, content type, time to read or watch, and one short verified quote.
 5. **Judge (Opus):** apply the teaching-moment test with the rubric. Output: pass or fail, score from 1 to 10, theme, one-line reason. Structured output, so the result always parses.
 6. **Verify (code):** decides only whether the item makes the issue: the judge passed it with a score of at least 5, it was published within 7 days (undated items are allowed), and the card isn't empty. **Presentation never drops an item.** Card shape is tidied before judging (below), and a quote that's too long or not found on the fetched page is removed, not the item.
-7. **Store (code):** passing items go into this week's pool; everything considered goes into `state/seen.jsonl`; source stats are updated; the run log is written.
+7. **Store (code):** passing items go into this week's pool; everything considered goes into memory (`generated/memory.jsonl`); the run log is written. Passes are saved to the pool the moment they're kept, so a crash late in a run can't lose cards already paid for.
 
 ### Explore quotas (enforced in code)
 
@@ -77,11 +77,15 @@ The judge is strict on purpose, so volume has to come from the top of the funnel
 
 ## The weekly issue (Sunday morning)
 
-1. Take this week's pool and pick the top 5 to 7 by judge score, with **at least 2 from outside the seed list** (or the issue says why not).
-2. Group items covering the same story and keep the best source.
-3. Sonnet writes a three-line intro.
-4. Write `issues/YYYY-Www.md`, commit it, and email it to me via Resend.
-5. The email footer has a health line: runs this week, failures, explore shortfalls, tokens used this week.
+`pnpm weekly` reads this ISO week's pool (Monday to Sunday) and:
+
+1. **Ranks** by judge score, newest first on ties, and takes up to 7.
+2. **One card per story:** items with near-identical titles collapse to the highest-scoring one.
+3. **At least 2 from explore** when any passed: the lowest-ranked seed items are swapped out for the best explore finds, so the issue isn't only the seed list's usual names.
+4. **Intro:** Sonnet writes two or three plain sentences on what the week's items share.
+5. **A thin week still sends.** If nothing passed, the email says so, so silence always means something broke.
+6. Writes `issues/YYYY-Www.md`, emails it via Resend, and marks the picks as `featured` in memory so they can't appear again.
+7. The footer has a health line: scans this week, failures, explore shortfalls, how many passed the judge, and tokens used.
 
 ### Item card (format locked 2026-10-20)
 
@@ -110,7 +114,7 @@ Shape limits (3–5 bullets of at most 25 words, a short idea and "go deeper if"
 ## Dedupe without months of maintenance
 
 - **Canonical URL key:** lowercase host, strip `www.`, tracking parameters (`utm_*`, `ref`, `fbclid`...), fragments and trailing slashes. YouTube links reduce to the video ID; GitHub links reduce to `owner/repo`, except issues, pull requests and discussions, which stay distinct. `twitter.com` and `x.com` are treated as one.
-- **`state/seen.jsonl`:** one line per URL considered in the last 30 days: `{key, url, title, firstSeen, status}` where `status` is `featured`, `passed`, or `rejected`.
+- **`generated/memory.jsonl`:** one line per URL considered in the last 30 days: `{key, url, title, firstSeen, status}` where `status` is `featured`, `passed`, or `rejected`.
 - **A rolling window:** each run adds new links and prunes anything first seen more than 30 days ago. At ~150 links a week that's a steady 600–700 lines (~130KB) forever. There's no keep-forever list; `issues/` is the permanent record.
 - **Code-only:** dedupe is a lookup in TypeScript. The file is never put in a prompt, so its size costs no tokens.
 - **Freshness does most of the work:** dated items older than 7 days are dropped, and the window is longer than that, so anything that ages out of memory would fail freshness anyway. Undated items (many repos and threads) are allowed; memory stops them repeating for 30 days. The odd one resurfacing after that is accepted.
@@ -130,7 +134,7 @@ Discovery hubs (curated lists, Hacker News, r/ClaudeAI, GitHub and YouTube searc
 
 ## Observability
 
-- **Run log:** `runs/<date>T<time>-<kind>.json` for every run, indented JSON that opens with a one-line summary, e.g. `scan · ok · 4m 12s · 1.24M in · 0.06M out · 23 searches · 18 fetches · quotas met`. Each phase has its own summary line, then the detail: model, duration, tokens (input, output, cache), web searches and fetches, quota results, warnings and errors. It's committed, so the debugging trail is public and browsable.
+- **Run log:** `generated/runs/<date>T<time>-<kind>.json` for every run, indented JSON that opens with a one-line summary, e.g. `scan · ok · 4m 12s · 1.24M in · 0.06M out · 23 searches · 18 fetches · quotas met`. Each phase has its own summary line, then the detail: model, duration, tokens (input, output, cache), web searches and fetches, quota results, warnings and errors. It's committed, so the debugging trail is public and browsable.
 - **Tokens, not dollars:** token counts are shown in millions so they're easy to price by hand; the Console dashboard has the real spend.
 - **Errors:** caught per phase and recorded in the run log. Any failed phase makes the run exit non-zero, so GitHub's failed-workflow email lands in my inbox.
 - **Local dry run:** `pnpm scan --dry` runs the whole pipeline on fixtures with no API calls. Deterministic parts (URLs, dedupe, quotas, usage, verify) have vitest tests.
@@ -149,20 +153,24 @@ Measured, not guessed: the first real explore run (8 searches max per theme, vid
 harness-digest/
   README.md
   docs/SPEC.md             this file
+  docs/ROADMAP.md          tuning ideas and later features
   config/
     themes.md              rubric and teaching-moment test (the judge reads this)
     sources.json           seed list, discovery hubs, per-source stats
     settings.ts            quotas, models per phase, run limits
   src/
-    scan.ts                entry point: runs the phases in order
-    weekly.ts              builds the issue, sends the email
-    phases/                seedSweep, explore, summarise, judge, verify, store
-    lib/                   urls, dedupe, quotas, usage, runLog, anthropic client
-  state/
-    seen.jsonl             dedupe memory (self-pruning)
+    scan.ts                a full scan: every phase in order
+    weekly.ts              picks the week's best, writes and emails the issue
+    sweep.ts, explore.ts   run one phase on its own, for debugging
+    smoke.ts               the item pipeline on hand-picked links
+    phases/                seedSweep, explore, item (fetch, summarise, judge, verify), intro
+    lib/                   urls, feeds, page, dedupe, pool, quotas, usage, runLog, email
+  generated/               written by runs, committed, not for hand-editing
+    memory.jsonl           dedupe memory (rolling 30 days)
     pool/YYYY-Www.jsonl    this week's passing items
-  issues/YYYY-Www.md       the archive
-  runs/YYYY-MM-DD.json     run logs
+    runs/*.json            run logs
+    local/                 smoke and explore outputs (git-ignored)
+  issues/YYYY-Www.md       the archive, meant for reading
   tests/
   .github/workflows/       scan.yml, weekly.yml
 ```
@@ -170,8 +178,8 @@ harness-digest/
 ## Running it
 
 - GitHub Actions, triggered on schedule and on manual runs only. **Never on pull requests**, so forks can't reach the secrets.
-- Scan at 02:00 UTC on Monday, Wednesday and Friday; weekly issue at 06:30 UTC on Sunday.
-- The workflow commits `state/`, `runs/` and `issues/` back to `main`.
+- Scans at 02:00 UTC on Monday and Thursday; the weekly issue at 06:30 UTC on Sunday. One email a week.
+- The workflows commit `generated/` and `issues/` back to `main`.
 - Secrets: `ANTHROPIC_API_KEY` (a key from the credit-funded Console workspace), `RESEND_API_KEY`, `DIGEST_EMAIL_TO` (comma-separated recipients, kept secret so no addresses are in a public repo).
 - Stack: TypeScript, pnpm, vitest, `@anthropic-ai/sdk` with server-side `web_search` and `web_fetch`. No agent framework: the phases *are* the harness.
 
@@ -185,21 +193,17 @@ harness-digest/
 
 ## Build order
 
-1. `lib/` (URLs, dedupe, quotas, usage, run log) with tests. No API calls. **Done.**
-2. **Thin end-to-end slice, run locally from `.env`:** summarise and judge 2–3 hand-picked URLs, verify them, render a mini issue, and email it via Resend. It proves the keys, the model routing, the email and the run log before anything bigger is built on top.
-3. Seed sweep and explore with quota enforcement; full dry run.
-4. Store, and the scan workflow on GitHub.
-5. The weekly issue workflow.
-6. Watch for a week; tune the rubric, quotas and limits.
+1. `lib/` (URLs, dedupe, quotas, usage, run log) with tests. **Done.**
+2. Thin end-to-end slice: `pnpm smoke <urls>` summarises, judges, verifies and emails hand-picked links. **Done.**
+3. Seed sweep (`pnpm sweep`, free). **Done.**
+4. Explore (`pnpm explore`). **Done.**
+5. `pnpm scan` and `pnpm weekly`: the whole pipeline, with memory, the week's pool and run logs. **Done:** first real issue sent 2026-10-20.
+6. GitHub Actions: scans Monday and Thursday, the issue on Sunday, committing `generated/` and `issues/` back.
+7. Let it run for a few weeks, then tune from the logs ([ROADMAP.md](ROADMAP.md)).
 
-## Later, not v1
+## Later
 
-- **X as a source (costs real money, so only once the digest has proved useful).** X blocks page fetches, but the pay-per-use API ($0.005 per post read) works. Design: follow a curated list of about 30 accounts, read their new original posts each scan, keep only X Articles (the API's `article` field carries the text), posts linking to outside articles or repos (fed into the normal pipeline), and long posts above an engagement threshold. Cap reads in code (150 per scan, about $10 a month at most) and use prepaid credits with auto-recharge off. Check the `article` field's shape with one test call first.
-
-- Thumbs up or down feedback from the email, feeding source scores.
-- Render `issues/` on shan8851.com.
-- Port it to Managed Agents' scheduled deployments and write up the comparison.
-- Other topics using the same harness.
+Tuning ideas, things to watch and later features are in [ROADMAP.md](ROADMAP.md).
 
 ## Success test (4 weeks after the first issue)
 

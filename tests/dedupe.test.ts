@@ -67,6 +67,10 @@ describe("loadSeen and saveSeen", () => {
       const entries = [entry({}), entry({ key: "example.com/b", status: "featured" })];
       await saveSeen(path, entries);
       expect(await loadSeen(path)).toEqual(entries);
+      // A first run has no state/ folder yet; saving must create it.
+      const nested = join(dir, "state", "seen.jsonl");
+      await saveSeen(nested, entries);
+      expect(await loadSeen(nested)).toEqual(entries);
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

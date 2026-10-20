@@ -1,6 +1,17 @@
 // Every tunable number lives here, so changing the harness's behaviour never
 // means hunting through phase code. See docs/SPEC.md for the reasoning.
 
+// Where the harness reads and writes, relative to the repo root. Everything
+// under generated/ is written by runs and committed, but isn't for hand-editing.
+// issues/ is the readable archive.
+export const PATHS = {
+  memory: "generated/memory.jsonl", // every link considered in the last 30 days
+  pool: "generated/pool", // one file per ISO week of passing items
+  runs: "generated/runs", // one JSON log per run
+  issues: "issues", // the weekly issues, as markdown
+  local: "generated/local", // smoke and explore outputs; git-ignored
+} as const;
+
 export const THEMES = [
   "harness-design",
   "verification",
@@ -28,6 +39,7 @@ export type ModelId = (typeof MODELS)[keyof typeof MODELS];
 // summarising is routine reading, so "medium" is plenty.
 export const EFFORT = {
   explore: "medium",
+  weeklyIntro: "low",
   summarise: "medium",
   judge: "high",
 } as const;
@@ -61,6 +73,19 @@ export const EXPLORE_QUOTAS: ExploreQuotas = {
 // a healthy run never hits it.
 export const RUN_LIMITS = {
   maxTokensPerRun: 5_000_000,
+} as const;
+
+export const SCAN = {
+  // Items fetched, summarised and judged at the same time. Keeps a scan to a
+  // few minutes without hammering any one API.
+  concurrency: 4,
+} as const;
+
+export const WEEKLY = {
+  maxItems: 7,
+  // At least this many items explore found, when any passed, so the issue
+  // isn't only the seed list's usual names.
+  minFromExplore: 2,
 } as const;
 
 export const EXPLORE = {
@@ -115,7 +140,7 @@ export const ITEMS = {
 } as const;
 
 export const MEMORY = {
-  // Entries in state/seen.jsonl older than this are pruned on every run, so
+  // Entries in the memory file older than this are pruned on every run, so
   // the file stays at a steady ~600-700 lines however long the harness runs.
   // Longer than maxAgeDays, so anything that ages out of memory would already
   // fail the freshness check. The issues/ archive is the permanent record.
