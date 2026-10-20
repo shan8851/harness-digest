@@ -51,9 +51,9 @@ seed sweep ──► explore ──► dedupe + quota check ──► read & sum
 1. **Seed sweep:** check every source in `config/sources.json` for anything published since the last successful run (capped at 7 days).
 2. **Explore:** open search beyond the seed list. Quotas below.
 3. **Dedupe and quota check (code):** canonicalise URLs, drop anything already seen, then count what's left against the quotas. If explore falls short, send it back with the specific gap (for example, "3 new sources, need 10; theme 4 has no searches"), up to 2 retries. If it still falls short, record the shortfall and carry on.
-4. **Read and summarise:** for each new candidate, fetch the page and produce: technique (2 lines), "steal this" (1 line), theme, content type, time to read or watch, published date, and one short quote.
+4. **Read and summarise:** for each new candidate, fetch the page and produce the card: one-line idea, 3–5 "how it works" bullets, "steal this", "go deeper if", theme, content type, time to read or watch, and one short verified quote.
 5. **Judge (Opus):** apply the teaching-moment test with the rubric. Output: pass or fail, score from 1 to 10, theme, one-line reason. Structured output, so the result always parses.
-6. **Verify (code):** link resolves; the quote actually appears in the fetched page text; the quote is 25 words or fewer; the published date is within 14 days; all fields are present and valid.
+6. **Verify (code):** decides only whether the item makes the issue: the judge passed it with a score of at least 5, it was published within 14 days, and the card isn't empty. **Presentation never drops an item.** Card shape is tidied before judging (below), and a quote that's too long or not found on the fetched page is removed, not the item.
 7. **Store (code):** passing items go into this week's pool; everything considered goes into `state/seen.jsonl`; source stats are updated; the run log is written.
 
 ### Explore quotas (enforced in code)
@@ -81,15 +81,29 @@ The judge is strict on purpose, so volume has to come from the top of the funnel
 4. Write `issues/YYYY-Www.md`, commit it, and email it to me via Resend.
 5. The email footer has a health line: runs this week, failures, explore shortfalls, tokens used this week.
 
-### Item card
+### Item card (format locked 2026-10-20)
+
+The email opens with a **This week** contents list (each title plus its one-line idea), then one card per item:
 
 ```
-### Title  (blog · 12 min)  [harness design]
-The technique, in two lines.
-**Steal this:** the one thing to try.
-> "One short quote from the source."
-link · published 2026-10-18 · score 8/10
+1. How the Claude Code team does code review
+blog · 14 min · lighter review · 9/10 · 15 Oct
+
+Most review happens before a human looks: agents prove their work,
+other agents check it, and humans only see what's left.
+
+How it works
+• The authoring agent must attach test output or screenshots as proof
+• A fresh-context subagent reviews the diff against a per-folder REVIEW.md
+• Review agents vote on findings; nits are capped, file-and-line evidence required
+
+Steal this: Before your next agent-written PR, add a short REVIEW.md that
+defines failure, caps nits and demands file-and-line evidence.
+
+Go deeper if: you're the bottleneck on reviewing agent output.
 ```
+
+Shape limits (3–5 bullets of at most 25 words, a short idea and "go deeper if") are checked straight after summarising. A card that breaks them is sent back with the exact problems, up to twice; if it's still over, it's published as it is and the run log records a warning. Quality is the judge's call alone. The verified quote is kept in the archive but left out of the email.
 
 ## Dedupe without months of maintenance
 

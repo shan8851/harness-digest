@@ -22,6 +22,7 @@ A small public agent harness: three scans a week (Mon, Wed, Fri) find instructiv
 - **Code enforces, prompts suggest.** Anything that must happen (quotas, dedupe, verification, limits) is checked in TypeScript, never left to a prompt.
 - **Proof comes from the log, not the model's word.** Count real tool calls from the API response; verify quotes against fetched page text.
 - **Readable over clever.** The repo is a public showcase. Small modules, comments that explain *why*, test names that read as plain-English behaviour.
+- **Presentation never drops an item.** Only the judge (and freshness) decide what's in. Card shape gets tidy-up passes and warnings; a bad quote is removed, not the item.
 - **Tokens, not dollars.** Track usage in tokens; spend lives on the Console dashboard. Don't add a price table.
 
 ## Conventions

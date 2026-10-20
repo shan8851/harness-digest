@@ -74,6 +74,16 @@ export const ITEMS = {
   maxPageChars: 80_000,
   // Quotes longer than this fail verification (keeps us well clear of copying).
   maxQuoteWords: 25,
+  // Card shape. The prompt asks for less; these are the hard limits that
+  // stop a card drifting into a full summary.
+  minBullets: 3,
+  maxBullets: 5,
+  maxBulletWords: 25,
+  maxIdeaWords: 35,
+  maxGoDeeperWords: 25,
+  // A card that breaks the shape limits is sent back with the exact problems
+  // this many times before the item is dropped.
+  maxCardRevisions: 2,
   // Items published longer ago than this fail verification.
   maxAgeDays: 14,
   // The judge's score must be at least this to pass, whatever it says.

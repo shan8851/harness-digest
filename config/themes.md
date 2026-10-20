@@ -36,6 +36,13 @@ Pass only if the item contains a **concrete, transferable technique** that a wor
 
 ## Writing rules
 
+Each card has four parts. Together they should let a reader decide in under a minute whether to click through, and give them enough to start trying the idea without clicking.
+
+- **Idea:** one sentence. The problem and the answer, plainly. No hype words.
+- **How it works:** 3 to 5 short bullets, about 12–15 words each, on the concrete mechanics: what to set up, what runs when, what gets checked. Not a summary of the article's structure.
+- **Steal this:** see below.
+- **Go deeper if:** one short line saying who should read the full piece ("you're the bottleneck on reviewing agent output").
+
 - **Write for any reader.** Assume the issue may be forwarded to strangers. Never refer to a specific reader, their family, employer or projects.
 - **"Steal this"** is one sentence: the specific technique from the item, plus a concrete moment to try it ("before your next…", "the next time you…"). Name the actual skill, prompt or pattern, not a vague category, and keep the moment generic (work, a team, a side project, home), never a specific person or project.
 - Summaries are in your own words. At most one short quote (25 words or fewer) per item.

@@ -35,7 +35,44 @@ export function wordCount(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
-/** Returns every problem found; an empty list means the item is verified. */
+/**
+ * Presentation checks on the card: shape limits and the quote. These never
+ * decide whether an item is good; that's the judge's job. They run straight
+ * after summarising so a messy card can be sent back for a tidy-up, and
+ * anything still off afterwards is logged as a warning, not a drop.
+ */
+export function checkCard(summary: Summary, pageText: string): string[] {
+  const problems: string[] = [];
+
+  const bullets = summary.howItWorks.filter((b) => b.trim());
+  if (bullets.length < ITEMS.minBullets || bullets.length > ITEMS.maxBullets) {
+    problems.push(`${bullets.length} "how it works" bullets, need ${ITEMS.minBullets}-${ITEMS.maxBullets}`);
+  }
+  const longBullets = bullets.filter((b) => wordCount(b) > ITEMS.maxBulletWords).length;
+  if (longBullets) problems.push(`${longBullets} bullet(s) over ${ITEMS.maxBulletWords} words`);
+  if (wordCount(summary.idea) > ITEMS.maxIdeaWords) problems.push(`idea is ${wordCount(summary.idea)} words, max ${ITEMS.maxIdeaWords}`);
+  if (wordCount(summary.goDeeperIf) > ITEMS.maxGoDeeperWords) {
+    problems.push(`"go deeper if" is ${wordCount(summary.goDeeperIf)} words, max ${ITEMS.maxGoDeeperWords}`);
+  }
+  problems.push(...quoteProblems(summary.quote, pageText));
+  return problems;
+}
+
+/** The quote must be short (we summarise, never copy) and really on the page. */
+export function quoteProblems(quote: string, pageText: string): string[] {
+  if (!quote.trim()) return [];
+  const problems: string[] = [];
+  const words = wordCount(quote);
+  if (words > ITEMS.maxQuoteWords) problems.push(`quote is ${words} words, max ${ITEMS.maxQuoteWords}`);
+  if (!normaliseForMatch(pageText).includes(normaliseForMatch(quote))) problems.push("quote not found in page text");
+  return problems;
+}
+
+/**
+ * Whether the item makes the issue at all. Only quality and freshness decide
+ * that, plus a card too empty to show. Returns the reasons to drop it; an
+ * empty list means it's in.
+ */
 export function verifyItem(input: VerifyInput, options: VerifyOptions): string[] {
   const { summary, verdict } = input;
   const problems: string[] = [];
@@ -43,15 +80,10 @@ export function verifyItem(input: VerifyInput, options: VerifyOptions): string[]
   if (!verdict.pass) problems.push(`judge failed it: ${verdict.reason}`);
   else if (verdict.score < ITEMS.minScore) problems.push(`judge passed it but scored ${verdict.score}, below ${ITEMS.minScore}`);
 
-  for (const field of ["title", "technique", "stealThis", "quote"] as const) {
-    if (!summary[field].trim()) problems.push(`empty ${field}`);
+  for (const field of ["title", "idea", "stealThis"] as const) {
+    if (!summary[field].trim()) problems.push(`card has no ${field}`);
   }
-
-  const words = wordCount(summary.quote);
-  if (words > ITEMS.maxQuoteWords) problems.push(`quote is ${words} words, max ${ITEMS.maxQuoteWords}`);
-  if (summary.quote.trim() && !normaliseForMatch(input.pageText).includes(normaliseForMatch(summary.quote))) {
-    problems.push("quote not found in page text");
-  }
+  if (!summary.howItWorks.some((b) => b.trim())) problems.push('card has no "how it works" bullets');
 
   if (options.checkAge) {
     if (!input.publishedDate) {

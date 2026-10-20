@@ -8,7 +8,7 @@
 // including a "Judged out" section so you can see the judge's reasoning.
 
 import { mkdir, writeFile } from "node:fs/promises";
-import { MODELS } from "../config/settings.js";
+import { ITEMS, MODELS } from "../config/settings.js";
 import { renderHtml, renderMarkdown, renderText, type IssueItem } from "./issue/render.js";
 import { sendEmail } from "./lib/email.js";
 import { fetchPage } from "./lib/page.js";
@@ -16,7 +16,7 @@ import { finishRun, newRunLog, recordPhase, writeRunLog } from "./lib/runLog.js"
 import { addUsage, describeUsage, ZERO_USAGE } from "./lib/usage.js";
 import { judge } from "./phases/judge.js";
 import { summarise } from "./phases/summarise.js";
-import { verifyItem } from "./phases/verify.js";
+import { checkCard, quoteProblems, verifyItem } from "./phases/verify.js";
 
 const args = process.argv.slice(2);
 const urls = args.filter((a) => !a.startsWith("--"));
@@ -34,7 +34,7 @@ const rejected: { url: string; reason: string }[] = [];
 // one line per phase rather than one per URL per phase.
 const pooled = {
   fetch: { started: new Date(), notes: [] as string[] },
-  summarise: { usage: ZERO_USAGE, started: new Date(), ms: 0 },
+  summarise: { usage: ZERO_USAGE, started: new Date(), ms: 0, notes: [] as string[] },
   judge: { usage: ZERO_USAGE, started: new Date(), ms: 0 },
 };
 
@@ -50,9 +50,24 @@ for (const url of urls) {
 
   try {
     let t = Date.now();
-    const { summary, usage: summariseUsage } = await summarise(page);
-    pooled.summarise.ms += Date.now() - t;
+    let { summary, usage: summariseUsage } = await summarise(page);
     pooled.summarise.usage = addUsage(pooled.summarise.usage, summariseUsage);
+
+    // Tidy the card before the judge sees it: if its shape is off, send it
+    // back with the exact problems. Presentation never drops an item, so
+    // anything still off afterwards is kept and logged as a warning.
+    for (let attempt = 0; attempt < ITEMS.maxCardRevisions; attempt++) {
+      const cardProblems = checkCard(summary, page.text);
+      if (cardProblems.length === 0) break;
+      pooled.summarise.notes.push(`${url}: revised for ${cardProblems.join("; ")}`);
+      ({ summary, usage: summariseUsage } = await summarise(page, { previous: summary, problems: cardProblems }));
+      pooled.summarise.usage = addUsage(pooled.summarise.usage, summariseUsage);
+    }
+    const leftover = checkCard(summary, page.text);
+    if (leftover.length) log.warnings.push(`${url}: kept with card issues: ${leftover.join("; ")}`);
+    // A quote that's too long or not on the page is removed, never the item.
+    if (quoteProblems(summary.quote, page.text).length) summary = { ...summary, quote: "" };
+    pooled.summarise.ms += Date.now() - t;
 
     t = Date.now();
     const { verdict, usage: judgeUsage } = await judge({ url: page.finalUrl, summary, pageText: page.text });
@@ -79,7 +94,7 @@ for (const url of urls) {
 const now = new Date();
 const since = (ms: number) => new Date(now.getTime() - ms);
 recordPhase(log, { name: "fetch", model: null, startedAt: pooled.fetch.started, notes: pooled.fetch.notes }, pooled.fetch.started);
-recordPhase(log, { name: "summarise", model: MODELS.summarise, startedAt: since(pooled.summarise.ms), usage: pooled.summarise.usage }, now);
+recordPhase(log, { name: "summarise", model: MODELS.summarise, startedAt: since(pooled.summarise.ms), usage: pooled.summarise.usage, notes: pooled.summarise.notes }, now);
 recordPhase(log, { name: "judge", model: MODELS.judge, startedAt: since(pooled.judge.ms), usage: pooled.judge.usage }, now);
 
 const stamp = log.id.replace(/-smoke$/, "");
