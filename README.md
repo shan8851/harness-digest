@@ -12,8 +12,14 @@ The harness is also the practice: it's built from the patterns it reads about. F
 
 ```bash
 pnpm install
-pnpm check   # typecheck + tests
+pnpm check            # typecheck + tests
+pnpm sweep            # the seed sweep on its own: free, read-only
+pnpm smoke <urls>     # judge and email hand-picked links (local outputs only)
+pnpm scan             # a full scan: writes memory, the pool and a run log
+pnpm weekly --dry-run # build this week's issue without sending or marking anything
 ```
+
+Keys come from `.env` locally and from repository secrets in GitHub Actions. The workflows in [`.github/workflows/`](.github/workflows/) are manual-only for now; see [docs/SPEC.md](docs/SPEC.md#running-it).
 
 ## How it works
 

@@ -7,6 +7,8 @@ A small public agent harness: two scans a week (Monday and Thursday) find instru
 - `pnpm install`
 - `pnpm check`: typecheck and tests. Run before every commit.
 - `pnpm test:watch` while working on `src/lib/`.
+- `pnpm sweep` is free. `pnpm scan`, `pnpm explore` and `pnpm smoke` spend real credits (a scan is about $4-5): agree before running them. `pnpm weekly --dry-run` has no side effects.
+- The real runs happen in GitHub Actions (`.github/workflows/`), manual-only until the schedules are uncommented.
 
 ## How the code is laid out
 

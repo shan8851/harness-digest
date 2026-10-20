@@ -18,6 +18,7 @@ export interface IssueItem {
   summary: Summary;
   verdict: Verdict;
   publishedDate: string | null;
+  carriedOver?: boolean; // unpicked last week, given one more chance
 }
 
 export interface IssueInput {
@@ -49,6 +50,7 @@ export function metaLine(item: IssueItem): string {
     THEME_LABELS[item.verdict.theme],
     `${item.verdict.score}/10`,
     item.publishedDate ? shortDate(item.publishedDate) : null,
+    item.carriedOver ? "from last week" : null,
   ]
     .filter(Boolean)
     .join(" · ");

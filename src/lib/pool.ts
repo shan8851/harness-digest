@@ -17,6 +17,17 @@ export interface PoolEntry extends IssueItem {
 
 export const fromExplore = (entry: { foundBy: string }) => entry.foundBy.startsWith("explore");
 
+/** The score used for ranking: the judge's score, minus the handicap for carried-over items. */
+export const rankScore = (entry: PoolEntry) => entry.verdict.score - (entry.carriedOver ? WEEKLY.carryOverPenalty : 0);
+
+/**
+ * Last week's strong items that weren't picked, flagged for one more chance.
+ * Only the previous week is ever read, so nothing carries over twice.
+ */
+export function carryOver(previousWeek: PoolEntry[], featured: Set<string>, minScore: number = WEEKLY.carryOverMinScore): PoolEntry[] {
+  return previousWeek.filter((e) => !featured.has(e.key) && e.verdict.score >= minScore).map((e) => ({ ...e, carriedOver: true }));
+}
+
 /** ISO 8601 week, e.g. "2026-W43". Weeks run Monday to Sunday, so Sunday's issue covers that week's scans. */
 export function isoWeek(date: Date): string {
   const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
@@ -68,8 +79,12 @@ export function weakestTheme(pool: PoolEntry[]): Theme {
 export function pickIssue(pool: PoolEntry[], options: { maxItems?: number; minFromExplore?: number } = {}): PoolEntry[] {
   const maxItems = options.maxItems ?? WEEKLY.maxItems;
   const minFromExplore = options.minFromExplore ?? WEEKLY.minFromExplore;
+  // Highest rank score first; on a tie, fresh items beat carried-over ones, then newest first.
   const ranked = [...pool].sort(
-    (a, b) => b.verdict.score - a.verdict.score || (b.publishedDate ?? b.scannedAt).localeCompare(a.publishedDate ?? a.scannedAt),
+    (a, b) =>
+      rankScore(b) - rankScore(a) ||
+      Number(Boolean(a.carriedOver)) - Number(Boolean(b.carriedOver)) ||
+      (b.publishedDate ?? b.scannedAt).localeCompare(a.publishedDate ?? a.scannedAt),
   );
 
   // One card per story: drop anything too similar to a higher-ranked item.
@@ -88,5 +103,5 @@ export function pickIssue(pool: PoolEntry[], options: { maxItems?: number; minFr
     picked.splice(lowestSeed[1], 1);
     picked.push(spare.shift()!);
   }
-  return picked.sort((a, b) => b.verdict.score - a.verdict.score);
+  return picked.sort((a, b) => rankScore(b) - rankScore(a) || Number(Boolean(a.carriedOver)) - Number(Boolean(b.carriedOver)));
 }

@@ -86,6 +86,11 @@ export const WEEKLY = {
   // At least this many items explore found, when any passed, so the issue
   // isn't only the seed list's usual names.
   minFromExplore: 2,
+  // Carry-over: last week's unpicked items scoring at least this get one more
+  // chance, ranked this many points lower so fresh items win ties. After that
+  // week they're gone for good.
+  carryOverMinScore: 8,
+  carryOverPenalty: 1,
 } as const;
 
 export const EXPLORE = {

@@ -1,0 +1,55 @@
+# A scan: seed sweep, explore, judge, and save the passes to this week's pool.
+# Commits generated/ (memory, pool, run log) back to main.
+#
+# Manual only for now: Actions tab → "scan" → "Run workflow".
+# To go live, uncomment the schedule below.
+
+name: scan
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: "0 2 * * 1,4" # 02:00 UTC every Monday and Thursday
+  # Never add pull_request or pull_request_target: forks must not reach the secrets.
+
+permissions:
+  contents: write # to commit generated/ back; nothing else
+
+# Scans and the weekly issue share state, so they queue rather than overlap.
+concurrency:
+  group: harness-digest-state
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4 # version comes from packageManager in package.json
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Scan
+        run: pnpm scan
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      # Runs even if the scan failed: passes are saved as they're kept and the
+      # run log says what went wrong, so both are worth committing.
+      - name: Commit results
+        if: always()
+        run: |
+          git config user.name "harness-digest[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add generated
+          if git diff --cached --quiet; then echo "Nothing to commit"; exit 0; fi
+          git commit -m "$(node scripts/last-run-summary.mjs scan)"
+          git pull --rebase
+          git push

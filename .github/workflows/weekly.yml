@@ -1,0 +1,71 @@
+# The weekly issue: picks the best of the week's pool, writes issues/<week>.md,
+# emails it, and marks the picks as featured. Commits issues/ and generated/.
+#
+# Manual only for now: Actions tab → "weekly" → "Run workflow", choosing:
+#   dry-run  builds the issue and prints it; no email, nothing marked, nothing committed
+#   send     the real thing
+# To go live, uncomment the schedule below (scheduled runs always send).
+
+name: weekly
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry-run builds the issue without sending; send is the real thing"
+        type: choice
+        options: [dry-run, send]
+        default: dry-run
+  # schedule:
+  #   - cron: "30 6 * * 0" # 06:30 UTC every Sunday
+  # Never add pull_request or pull_request_target: forks must not reach the secrets.
+
+permissions:
+  contents: write # to commit issues/ and generated/ back; nothing else
+
+concurrency:
+  group: harness-digest-state
+  cancel-in-progress: false
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # A scheduled run has no inputs, so it always sends.
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'dry-run' }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build and send the issue
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            pnpm weekly --dry-run
+            cat generated/local/*-dry-run.md
+          else
+            pnpm weekly
+          fi
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          DIGEST_EMAIL_TO: ${{ secrets.DIGEST_EMAIL_TO }}
+
+      - name: Commit the issue
+        if: env.DRY_RUN != 'true'
+        run: |
+          git config user.name "harness-digest[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add issues generated
+          if git diff --cached --quiet; then echo "Nothing to commit"; exit 0; fi
+          git commit -m "$(node scripts/last-run-summary.mjs weekly)"
+          git pull --rebase
+          git push

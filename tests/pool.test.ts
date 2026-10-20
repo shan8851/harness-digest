@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { Theme } from "../config/settings.js";
-import { appendPool, isoWeek, loadPool, pickIssue, weakestTheme, type PoolEntry } from "../src/lib/pool.js";
+import { appendPool, carryOver, isoWeek, loadPool, pickIssue, weakestTheme, type PoolEntry } from "../src/lib/pool.js";
 import { mapLimited } from "../src/phases/item.js";
 
 let n = 0;
@@ -74,6 +74,32 @@ describe("pickIssue", () => {
 
   it("returns an empty issue for an empty week", () => {
     expect(pickIssue([])).toEqual([]);
+  });
+});
+
+describe("carryOver", () => {
+  it("gives last week's strong, unfeatured items one more chance, flagged as carried over", () => {
+    const strong = entry(9);
+    const featuredOne = entry(9);
+    const weak = entry(7);
+    const carried = carryOver([strong, featuredOne, weak], new Set([featuredOne.key]), 8);
+    expect(carried.map((e) => [e.key, e.carriedOver])).toEqual([[strong.key, true]]);
+  });
+});
+
+describe("pickIssue with carry-over", () => {
+  it("ranks a carried-over item one point lower, so a fresh item of equal standing wins", () => {
+    const carried9 = { ...entry(9), carriedOver: true };
+    const fresh8 = entry(8);
+    const fresh7 = entry(7);
+    const picks = pickIssue([fresh7, carried9, fresh8], { maxItems: 2, minFromExplore: 0 });
+    expect(picks).toEqual([fresh8, carried9]); // the carried 9 ranks as 8; fresh wins the tie; 7 misses out
+  });
+
+  it("still lets a carried-over item beat weaker fresh ones", () => {
+    const carried10 = { ...entry(10), carriedOver: true };
+    const fresh8 = entry(8);
+    expect(pickIssue([fresh8, carried10], { maxItems: 1, minFromExplore: 0 })).toEqual([carried10]);
   });
 });
 

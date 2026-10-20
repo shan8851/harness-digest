@@ -81,11 +81,12 @@ The judge is strict on purpose, so volume has to come from the top of the funnel
 
 1. **Ranks** by judge score, newest first on ties, and takes up to 7.
 2. **One card per story:** items with near-identical titles collapse to the highest-scoring one.
-3. **At least 2 from explore** when any passed: the lowest-ranked seed items are swapped out for the best explore finds, so the issue isn't only the seed list's usual names.
-4. **Intro:** Sonnet writes two or three plain sentences on what the week's items share.
-5. **A thin week still sends.** If nothing passed, the email says so, so silence always means something broke.
-6. Writes `issues/YYYY-Www.md`, emails it via Resend, and marks the picks as `featured` in memory so they can't appear again.
-7. The footer has a health line: scans this week, failures, explore shortfalls, how many passed the judge, and tokens used.
+3. **Carry-over:** last week's unpicked items scoring 8 or more get one more chance, ranked a point lower so fresh items win ties, and marked "from last week" on the card. Only the previous week is read, so nothing carries over twice.
+4. **At least 2 from explore** when any passed: the lowest-ranked seed items are swapped out for the best explore finds, so the issue isn't only the seed list's usual names.
+5. **Intro:** Sonnet writes two or three plain sentences on what the week's items share.
+6. **A thin week still sends.** If nothing passed, the email says so, so silence always means something broke.
+7. Writes `issues/YYYY-Www.md`, emails it via Resend, and marks the picks as `featured` in memory so they can't appear again.
+8. The footer has a health line: scans this week, failures, explore shortfalls, how many passed the judge, how many carried over, and tokens used.
 
 ### Item card (format locked 2026-10-20)
 
@@ -177,9 +178,12 @@ harness-digest/
 
 ## Running it
 
-- GitHub Actions, triggered on schedule and on manual runs only. **Never on pull requests**, so forks can't reach the secrets.
-- Scans at 02:00 UTC on Monday and Thursday; the weekly issue at 06:30 UTC on Sunday. One email a week.
-- The workflows commit `generated/` and `issues/` back to `main`.
+- Two GitHub Actions workflows: [`scan.yml`](../.github/workflows/scan.yml) and [`weekly.yml`](../.github/workflows/weekly.yml). **Never triggered by pull requests**, so forks can't reach the secrets.
+- **Manual for now** (Actions tab → Run workflow). The weekly workflow offers `dry-run` (builds and prints the issue; no email, nothing marked featured, nothing committed) or `send`.
+- **Going live** means uncommenting the `schedule:` blocks: scans at 02:00 UTC on Monday and Thursday, the weekly issue at 06:30 UTC on Sunday (scheduled runs always send). One email a week.
+- Secrets are referenced in the YAML (`${{ secrets.ANTHROPIC_API_KEY }}`) and exposed only to the step that needs them. Locally, the same variables come from `.env`.
+- The workflows commit `generated/` (and `issues/`) back to `main` as `harness-digest[bot]`, with the run's summary line as the commit message. The scan commits even if it failed, since passes are saved as they're kept and the run log explains the failure.
+- Both share a concurrency group, so a scan and the weekly issue never run at the same time.
 - Secrets: `ANTHROPIC_API_KEY` (a key from the credit-funded Console workspace), `RESEND_API_KEY`, `DIGEST_EMAIL_TO` (comma-separated recipients, kept secret so no addresses are in a public repo).
 - Stack: TypeScript, pnpm, vitest, `@anthropic-ai/sdk` with server-side `web_search` and `web_fetch`. No agent framework: the phases *are* the harness.
 

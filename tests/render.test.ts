@@ -29,6 +29,10 @@ describe("metaLine", () => {
   it("puts type, length, theme, score and date on one line", () => {
     expect(metaLine(item(1))).toBe("blog · 14 min · lighter review · 9/10 · 15 Oct");
   });
+
+  it("says when an item is a carry-over from last week", () => {
+    expect(metaLine({ ...item(1), carriedOver: true })).toBe("blog · 14 min · lighter review · 9/10 · 15 Oct · from last week");
+  });
 });
 
 describe("renderMarkdown (the archive)", () => {

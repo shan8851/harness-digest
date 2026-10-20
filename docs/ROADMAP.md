@@ -12,6 +12,7 @@ The plan is to let it run for a few weeks before tuning anything, so changes are
 | **Judge cost** | `EFFORT.judge` | "high" → "medium" for a cheaper Opus. Check it against a handful of known-good and known-bad items first (Hamel's decision-model evals post is relevant). |
 | **Seed list** | `config/sources.json` | Prune seeds that only produce rejects; add ones explore keeps finding. Source promotion and demotion, once there's data. |
 | **Explore** | `EXPLORE`, `EXPLORE_QUOTAS` | Searches per theme (5), the candidate cap (15), and which theme gets pushed. |
+| **Carry-over** | `WEEKLY.carryOverMinScore`, `carryOverPenalty` | Built 2026-10-20 at 8+ with a 1-point handicap. In week one only 1 of 13 unpicked items qualified (most scored 7); lower to 7 if good items keep slipping through. |
 | **Freshness and caps** | `ITEMS.maxAgeDays`, `SEED_SWEEP.maxItemsPerSeed` | The 7-day window and 10 candidates per seed. |
 
 ## Things to watch
@@ -23,6 +24,7 @@ The plan is to let it run for a few weeks before tuning anything, so changes are
 
 ## Later
 
+- **An archive site** of everything that passed, not just what was sent: every passing card is already stored in full in `generated/pool/`. Showing rejects *with reasons* would need the judge's reason stored too (memory keeps only the title today).
 - **X as a source** (costs real money, so only once the digest has proved useful). X blocks page fetches, but the pay-per-use API ($0.005 per post read) works. Design: follow a curated list of about 30 accounts, read their new original posts each scan, keep only X Articles (the API's `article` field carries the text), posts linking to outside articles or repos (fed into the normal pipeline), and long posts above an engagement threshold. Cap reads in code (150 per scan, about $10 a month at most) and use prepaid credits with auto-recharge off. Check the `article` field's shape with one test call first.
 - Thumbs up or down feedback from the email, feeding source scores.
 - Render `issues/` on shan8851.com.
