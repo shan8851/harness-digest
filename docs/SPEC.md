@@ -63,11 +63,13 @@ Per run, counted from real tool calls and **new** (unseen) candidates only:
 - at least 20 distinct web searches
 - at least 20 new candidates from at least 10 sources outside the seed list (a *source* is a site, or an author on a shared platform: `github.com/owner`, `reddit.com/r/sub`, one Substack)
 - at least 2 searches per theme, and 4 for the theme with the fewest passes so far this week
-- at least one each of: video, repo, forum or discussion thread, blog post
+- at least one each of: repo, forum or discussion thread, blog post (videos are blocked: the pipeline can't read them)
 
 Because only *unseen* candidates count, a run where explore keeps finding the same old links automatically triggers a retry. Dedupe and the wider-search guarantee reinforce each other.
 
 Freshness: search queries rotate from a bank for each theme, searches are limited to the last 7 days, and explore is given a list of domains it used in the last 14 days, to avoid.
+
+At most 15 explore candidates per scan go on to summarise and judge, taken in turn from each theme so none crowds out the rest. Rich, free feeds do most of the work; explore fills the gaps.
 
 ### Candidate volume
 
@@ -111,7 +113,7 @@ Shape limits (3–5 bullets of at most 25 words, a short idea and "go deeper if"
 - **`state/seen.jsonl`:** one line per URL considered in the last 30 days: `{key, url, title, firstSeen, status}` where `status` is `featured`, `passed`, or `rejected`.
 - **A rolling window:** each run adds new links and prunes anything first seen more than 30 days ago. At ~150 links a week that's a steady 600–700 lines (~130KB) forever. There's no keep-forever list; `issues/` is the permanent record.
 - **Code-only:** dedupe is a lookup in TypeScript. The file is never put in a prompt, so its size costs no tokens.
-- **Freshness does most of the work:** dated items older than 7 days are dropped, and the window is longer than that, so anything that ages out of memory would fail freshness anyway. Undated items (many repos, threads, videos) are allowed; memory stops them repeating for 30 days. The odd one resurfacing after that is accepted.
+- **Freshness does most of the work:** dated items older than 7 days are dropped, and the window is longer than that, so anything that ages out of memory would fail freshness anyway. Undated items (many repos and threads) are allowed; memory stops them repeating for 30 days. The odd one resurfacing after that is accepted.
 - **Same story, different URL:** a cheap title-similarity check in code catches obvious duplicates, and the weekly grouping step catches the rest.
 
 ## Sources
@@ -124,7 +126,7 @@ Shape limits (3–5 bullets of at most 25 words, a short idea and "go deeper if"
 
 Discovery hubs (curated lists, Hacker News, r/ClaudeAI, GitHub and YouTube search) are starting points for explore, not seeds.
 
-**Blocked: X (x.com, twitter.com).** It only serves content to a logged-in browser. Blocked sites are excluded from web search, dropped before they count as candidates, and refused at fetch time (`BLOCKED_HOSTS` in settings). Revisit if X content proves worth paying for.
+**Blocked: X (x.com, twitter.com) and video sites (YouTube, Vimeo).** X only serves content to a logged-in browser; video pages return a JavaScript shell rather than a transcript, so there's nothing to summarise. Blocked sites are excluded from web search, dropped before they count as candidates, and refused at fetch time (`BLOCKED_HOSTS` in settings). Revisit X if it proves worth paying for.
 
 ## Observability
 
@@ -139,7 +141,7 @@ Discovery hubs (curated lists, Hacker News, r/ClaudeAI, GitHub and YouTube searc
 - **Runaway guard:** a run stops starting new phases once it has used 5M tokens (several times a normal run), keeps what's done, and logs a warning. It exists for loop bugs and retry storms, not normal operation.
 - If the Console cap is ever hit, runs fail loudly: the failed-workflow email arrives and the run log says why.
 
-Rough estimate: around 1–2M tokens a run, mostly Sonnet reading pages. Check the Console after week one.
+Measured, not guessed: the first real explore run (8 searches max per theme, videos allowed) read 1.34M tokens across 47 searches, because basic web search puts roughly 28k tokens of results into context per search. Explore is the expensive phase, so it's capped at 5 searches per theme call and videos are blocked. Expected now: roughly 0.6–0.8M tokens for explore plus summarising and judging 25–35 items (at most 15 from explore), about $3–3.50 a scan, or $40–45 a month. The seed sweep is free, so richer feeds are the cheap way to improve results. Check the Console after week one.
 
 ## Repo layout
 

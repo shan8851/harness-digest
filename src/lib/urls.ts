@@ -4,7 +4,7 @@
 // 2. sourceOf: who published it, so "10 new sources" means 10 different
 //    people or sites, not 10 links from one blog.
 
-import { BLOCKED_HOSTS } from "../../config/settings.js";
+import { BLOCKED_HOSTS, type ContentType } from "../../config/settings.js";
 
 // Query parameters that only track where a click came from.
 const TRACKING_PARAMS = new Set([
@@ -68,6 +68,29 @@ export function canonicalUrl(raw: string): string | null {
   const query = kept.length ? `?${new URLSearchParams(kept).toString()}` : "";
   const path = segments.length ? `/${segments.join("/")}` : "";
   return `${host}${path}${query}`;
+}
+
+// Hosts whose pages are discussion threads.
+const THREAD_HOSTS = new Set(["reddit.com", "news.ycombinator.com", "lobste.rs", "discord.com"]);
+
+/**
+ * What kind of content a URL points to, decided from the URL alone, so the
+ * "at least one repo, thread and blog" quota can't be met by the model
+ * just labelling things.
+ */
+export function contentTypeOf(raw: string): ContentType {
+  let url: URL;
+  try {
+    url = new URL(raw.trim());
+  } catch {
+    return "blog";
+  }
+  const host = cleanHost(url.hostname);
+  const segments = pathSegments(url.pathname);
+  if (THREAD_HOSTS.has(host) || host.startsWith("forum.") || host.startsWith("community.") || host.startsWith("discuss.")) return "thread";
+  if (host === "github.com" && ["discussions", "issues"].includes(segments[2] ?? "")) return "thread";
+  if (host === "github.com" || host === "gist.github.com" || host === "gitlab.com") return "repo";
+  return "blog";
 }
 
 /** True for links on a site in BLOCKED_HOSTS (including subdomains), and for anything that isn't a valid URL. */

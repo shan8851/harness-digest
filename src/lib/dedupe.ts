@@ -78,7 +78,7 @@ export function titleSimilarity(a: string, b: string): number {
  */
 export function splitUnseen<T extends { key: string; title: string }>(
   candidates: T[],
-  seen: SeenEntry[],
+  seen: { key: string; title: string }[], // memory, plus anything already found this run
   threshold: number = MEMORY.titleSimilarityThreshold,
 ): { fresh: T[]; duplicates: T[] } {
   const seenKeys = new Set(seen.map((e) => e.key));

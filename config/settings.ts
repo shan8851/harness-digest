@@ -10,7 +10,7 @@ export const THEMES = [
 ] as const;
 export type Theme = (typeof THEMES)[number];
 
-export const CONTENT_TYPES = ["blog", "video", "repo", "thread"] as const;
+export const CONTENT_TYPES = ["blog", "repo", "thread"] as const;
 export type ContentType = (typeof CONTENT_TYPES)[number];
 
 // Model routing: Sonnet does the token-heavy finding and reading, Opus makes
@@ -27,6 +27,7 @@ export type ModelId = (typeof MODELS)[keyof typeof MODELS];
 // How hard each model thinks. Judging is the product, so it gets "high";
 // summarising is routine reading, so "medium" is plenty.
 export const EFFORT = {
+  explore: "medium",
   summarise: "medium",
   judge: "high",
 } as const;
@@ -62,6 +63,18 @@ export const RUN_LIMITS = {
   maxTokensPerRun: 5_000_000,
 } as const;
 
+export const EXPLORE = {
+  // Hard cap on searches in any one explore call (the tool's max_uses). Each
+  // search puts ~28k tokens of results in context, so this is the main cost
+  // lever: the model tends to search more than it's asked to.
+  maxSearchesPerCall: 5,
+  // A long search turn can pause server-side; resume it at most this often.
+  maxPauseResumes: 3,
+  // At most this many explore candidates go on to summarise and judge per
+  // scan. Bounds the expensive part even when search is generous.
+  maxCandidates: 15,
+} as const;
+
 export const SEED_SWEEP = {
   // At most this many new candidates from any one seed per scan, so a busy
   // feed (or a first run with an empty memory) can't swamp the pipeline.
@@ -69,11 +82,14 @@ export const SEED_SWEEP = {
   fetchTimeoutMs: 20_000,
 } as const;
 
-// Sites the harness never looks at. X only serves content to a logged-in
-// browser, so fetching it returns a sign-in wall. These are excluded from web
-// search, dropped before they count as candidates, and refused at fetch time.
-// Revisit if X content turns out to be worth paying for.
-export const BLOCKED_HOSTS = ["x.com", "twitter.com"] as const;
+// Sites the harness never looks at. They're excluded from web search, dropped
+// before they count as candidates, and refused at fetch time.
+// - X only serves content to a logged-in browser (a fetch returns a sign-in
+//   wall). Revisit if X content turns out to be worth paying for.
+// - Video sites: a fetch returns a JavaScript shell, not a transcript, so the
+//   summariser would be writing about nothing. Searching for them wasted
+//   tokens in the first real explore run.
+export const BLOCKED_HOSTS = ["x.com", "twitter.com", "youtube.com", "youtu.be", "vimeo.com"] as const;
 
 export const ITEMS = {
   // Page text is capped before it reaches a model, to bound tokens per item.
@@ -92,7 +108,7 @@ export const ITEMS = {
   // this many times before the item is dropped.
   maxCardRevisions: 2,
   // Dated items published longer ago than this are dropped. Undated items
-  // (many repos, threads, videos) are allowed; memory stops them repeating.
+  // (many repos and threads) are allowed; memory stops them repeating.
   maxAgeDays: 7,
   // The judge's score must be at least this to pass, whatever it says.
   minScore: 5,

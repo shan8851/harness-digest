@@ -96,7 +96,7 @@ export function verifyItem(input: VerifyInput, options: VerifyOptions): string[]
   }
   if (!summary.howItWorks.some((b) => b.trim())) problems.push('card has no "how it works" bullets');
 
-  // Undated items (many repos, threads, videos) pass: memory stops repeats.
+  // Undated items (many repos and threads) pass: memory stops repeats.
   const age = options.checkAge ? tooOld(input.publishedDate, options.now) : null;
   if (age) problems.push(age);
 

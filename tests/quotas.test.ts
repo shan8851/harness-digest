@@ -23,7 +23,7 @@ function searches(perTheme: number, extraForWeakest = 0, weakest: Theme = "non-e
 
 const goodCandidates: ExploreReport["newCandidates"] = [
   { source: "a.com", type: "blog" },
-  { source: "youtube.com", type: "video" },
+  { source: "b.com", type: "blog" },
   { source: "github.com/someone", type: "repo" },
   { source: "reddit.com/r/claudeai", type: "thread" },
 ];
@@ -45,7 +45,7 @@ describe("checkExploreQuotas", () => {
   });
 
   it("does not count seed sources towards new sources", () => {
-    const seeds = new Set(["a.com", "youtube.com"]);
+    const seeds = new Set(["a.com", "github.com/someone"]);
     const report: ExploreReport = { searchesByTheme: searches(1, 1), newCandidates: goodCandidates };
     const result = checkExploreQuotas(report, seeds, "non-engineers", quotas);
     expect(result.shortfalls).toContain("2 new sources outside the seed list, need 3");
@@ -60,8 +60,8 @@ describe("checkExploreQuotas", () => {
       'theme "non-engineers" has 1 searches, need 2',
       "1 new candidates, need 4",
       "1 new sources outside the seed list, need 3",
-      "no new video, repo, thread found",
+      "no new repo, thread found",
     ]);
-    expect(gapMessage(result)).toContain("- no new video, repo, thread found");
+    expect(gapMessage(result)).toContain("- no new repo, thread found");
   });
 });

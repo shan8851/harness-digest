@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canonicalUrl, isBlocked, sourceOf } from "../src/lib/urls.js";
+import { canonicalUrl, contentTypeOf, isBlocked, sourceOf } from "../src/lib/urls.js";
 
 describe("canonicalUrl", () => {
   it("strips tracking parameters, www, fragments and trailing slashes", () => {
@@ -63,7 +63,24 @@ describe("sourceOf", () => {
   });
 });
 
+describe("contentTypeOf", () => {
+  it("decides the content type from the URL alone", () => {
+    expect(contentTypeOf("https://github.com/o/r")).toBe("repo");
+    expect(contentTypeOf("https://github.com/o/r/discussions/4")).toBe("thread");
+    expect(contentTypeOf("https://www.reddit.com/r/ClaudeAI/comments/x/y/")).toBe("thread");
+    expect(contentTypeOf("https://news.ycombinator.com/item?id=1")).toBe("thread");
+    expect(contentTypeOf("https://forum.cursor.com/t/thing/1")).toBe("thread");
+    expect(contentTypeOf("https://simonwillison.net/2026/Oct/1/x/")).toBe("blog");
+  });
+});
+
 describe("isBlocked", () => {
+  it("blocks video sites, since the pipeline can't read them", () => {
+    expect(isBlocked("https://www.youtube.com/watch?v=abc")).toBe(true);
+    expect(isBlocked("https://youtu.be/abc")).toBe(true);
+    expect(isBlocked("https://vimeo.com/123")).toBe(true);
+  });
+
   it("blocks X under every hostname it uses", () => {
     for (const url of ["https://x.com/a/status/1", "https://twitter.com/a", "https://mobile.twitter.com/a", "https://www.x.com/a"]) {
       expect(isBlocked(url)).toBe(true);

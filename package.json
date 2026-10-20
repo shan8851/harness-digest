@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "check": "pnpm typecheck && pnpm test",
     "smoke": "node --env-file=.env --import tsx src/smoke.ts",
-    "sweep": "tsx src/sweep.ts"
+    "sweep": "tsx src/sweep.ts",
+    "explore": "node --env-file=.env --import tsx src/explore.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.135.0",
