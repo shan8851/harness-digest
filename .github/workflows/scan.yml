@@ -1,15 +1,14 @@
 # A scan: seed sweep, explore, judge, and save the passes to this week's pool.
 # Commits generated/ (memory, pool, run log) back to main.
 #
-# Manual only for now: Actions tab → "scan" → "Run workflow".
-# To go live, uncomment the schedule below.
+# Runs on the schedule below, or by hand: Actions tab → "scan" → "Run workflow".
 
 name: scan
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: "0 2 * * 1,4" # 02:00 UTC every Monday and Thursday
+  schedule:
+    - cron: "0 2 * * 1,4" # 02:00 UTC every Monday and Thursday
   # Never add pull_request or pull_request_target: forks must not reach the secrets.
 
 permissions:

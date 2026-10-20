@@ -179,8 +179,9 @@ harness-digest/
 ## Running it
 
 - Two GitHub Actions workflows: [`scan.yml`](../.github/workflows/scan.yml) and [`weekly.yml`](../.github/workflows/weekly.yml). **Never triggered by pull requests**, so forks can't reach the secrets.
-- **Manual for now** (Actions tab → Run workflow). The weekly workflow offers `dry-run` (builds and prints the issue; no email, nothing marked featured, nothing committed) or `send`.
-- **Going live** means uncommenting the `schedule:` blocks: scans at 02:00 UTC on Monday and Thursday, the weekly issue at 06:30 UTC on Sunday (scheduled runs always send). One email a week.
+- **Live since 2026-10-20:** scans at 02:00 UTC on Monday and Thursday, the weekly issue at 06:30 UTC on Sunday (scheduled runs always send). One email a week.
+- Both can also be run by hand (Actions tab → Run workflow). The weekly workflow offers `dry-run` (builds and prints the issue; no email, nothing marked featured, nothing committed) or `send`.
+- **One issue per week:** if `issues/<week>.md` already exists, a send skips and logs why, rather than emailing twice or overwriting the archive. The week's strong passes carry over instead.
 - Secrets are referenced in the YAML (`${{ secrets.ANTHROPIC_API_KEY }}`) and exposed only to the step that needs them. Locally, the same variables come from `.env`.
 - The workflows commit `generated/` (and `issues/`) back to `main` as `github-actions[bot]`, with the run's summary line as the commit message. The scan commits even if it failed, since passes are saved as they're kept and the run log explains the failure.
 - Both share a concurrency group, so a scan and the weekly issue never run at the same time.
@@ -202,7 +203,7 @@ harness-digest/
 3. Seed sweep (`pnpm sweep`, free). **Done.**
 4. Explore (`pnpm explore`). **Done.**
 5. `pnpm scan` and `pnpm weekly`: the whole pipeline, with memory, the week's pool and run logs. **Done:** first real issue sent 2026-10-20.
-6. GitHub Actions: scans Monday and Thursday, the issue on Sunday, committing `generated/` and `issues/` back.
+6. GitHub Actions: scans Monday and Thursday, the issue on Sunday, committing `generated/` and `issues/` back. **Done:** live from 2026-10-20.
 7. Let it run for a few weeks, then tune from the logs ([ROADMAP.md](ROADMAP.md)).
 
 ## Later

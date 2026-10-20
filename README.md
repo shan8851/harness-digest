@@ -6,7 +6,7 @@ Every Monday and Thursday it searches for instructive writing, repos and threads
 
 The harness is also the practice: it's built from the patterns it reads about. Fixed phases, quotas enforced in code rather than in prompts, a separate judge, a verifier that checks quotes against the source, self-pruning memory, and a readable log for every run.
 
-**Status:** building. Step 1 of 6 done (URLs, dedupe, quotas, usage, run logs). See [docs/SPEC.md](docs/SPEC.md).
+**Status:** live. Scans run Monday and Thursday; the first issue went out on 20 October 2026. See [docs/SPEC.md](docs/SPEC.md).
 
 ## Develop
 
@@ -19,7 +19,7 @@ pnpm scan             # a full scan: writes memory, the pool and a run log
 pnpm weekly --dry-run # build this week's issue without sending or marking anything
 ```
 
-Keys come from `.env` locally and from repository secrets in GitHub Actions. The workflows in [`.github/workflows/`](.github/workflows/) are manual-only for now; see [docs/SPEC.md](docs/SPEC.md#running-it).
+Keys come from `.env` locally and from repository secrets in GitHub Actions. The workflows in [`.github/workflows/`](.github/workflows/) run the scans on Monday and Thursday and send the issue on Sunday; see [docs/SPEC.md](docs/SPEC.md#running-it).
 
 ## How it works
 

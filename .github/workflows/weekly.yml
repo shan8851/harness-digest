@@ -1,10 +1,11 @@
 # The weekly issue: picks the best of the week's pool, writes issues/<week>.md,
 # emails it, and marks the picks as featured. Commits issues/ and generated/.
 #
-# Manual only for now: Actions tab → "weekly" → "Run workflow", choosing:
+# Runs on the schedule below (scheduled runs always send), or by hand:
+# Actions tab → "weekly" → "Run workflow", choosing:
 #   dry-run  builds the issue and prints it; no email, nothing marked, nothing committed
 #   send     the real thing
-# To go live, uncomment the schedule below (scheduled runs always send).
+# If this week's issue has already gone out, a send skips rather than sending twice.
 
 name: weekly
 
@@ -16,8 +17,8 @@ on:
         type: choice
         options: [dry-run, send]
         default: dry-run
-  # schedule:
-  #   - cron: "30 6 * * 0" # 06:30 UTC every Sunday
+  schedule:
+    - cron: "30 6 * * 0" # 06:30 UTC every Sunday
   # Never add pull_request or pull_request_target: forks must not reach the secrets.
 
 permissions:

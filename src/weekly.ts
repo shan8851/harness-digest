@@ -13,6 +13,7 @@ import { MODELS, PATHS } from "../config/settings.js";
 import { renderHtml, renderMarkdown, renderText } from "./issue/render.js";
 import { loadSeen, saveSeen } from "./lib/dedupe.js";
 import { sendEmail } from "./lib/email.js";
+import { issueExists } from "./lib/issues.js";
 import { carryOver, isoWeek, loadPool, pickIssue } from "./lib/pool.js";
 import { finishRun, newRunLog, readRunLogs, recordPhase, writeRunLog } from "./lib/runLog.js";
 import { addUsage, describeUsage, ZERO_USAGE } from "./lib/usage.js";
@@ -31,6 +32,16 @@ const realStart = Date.now();
 const clock = () => new Date(now.getTime() + (Date.now() - realStart));
 const week = isoWeek(now);
 const log = newRunLog("weekly", now);
+
+// One issue per week. If this week's has already gone out, don't send a second
+// one or overwrite the archive; the week's strong passes carry over instead.
+if (!dryRun && (await issueExists(PATHS.issues, week))) {
+  log.warnings.push(`the ${week} issue was already sent; skipped (strong passes carry over to next week)`);
+  finishRun(log, clock());
+  const logPath = await writeRunLog(runsDir, log);
+  console.log(`${week} issue already sent; nothing to do.\n${log.summary}\nlog: ${logPath}`);
+  process.exit(0);
+}
 
 const seen = await loadSeen(SEEN_PATH);
 const featured = new Set(seen.filter((e) => e.status === "featured").map((e) => e.key));
