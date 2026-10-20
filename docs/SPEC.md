@@ -6,7 +6,7 @@ Status: draft for review, 2026-10-20. Nothing is built yet.
 
 A small, public harness that runs three times a week, finds instructive material on **agentic engineering** (how people shape AI agents to produce reliable, verified work), and sends me one skimmable digest a week, with links to the originals.
 
-It's also the practice project: the harness itself uses the patterns it reads about (fixed phases, quotas checked in code, a judge, a verifier, memory, cost tracking).
+It's also the practice project: the harness itself uses the patterns it reads about (fixed phases, quotas checked in code, a judge, a verifier, memory, token tracking).
 
 ## Principles
 
@@ -14,7 +14,7 @@ It's also the practice project: the harness itself uses the patterns it reads ab
 2. **Proof of work comes from the log, not the model's word.** We count real tool calls from the API response, and verify quotes against the fetched page.
 3. **Readable over clever.** Small modules, one per phase, with comments that explain *why*. Someone should be able to read the repo top to bottom in an evening.
 4. **Failure is visible.** A weak or failed run says so in the run log and in the weekly email. Nothing fails silently.
-5. **Cheap and bounded.** Hard budget guards at three levels (run, month, Console workspace).
+5. **Cheap and bounded.** A token runaway guard per run, and the Console workspace spend limit as the hard cap.
 
 ## Topic and rubric
 
@@ -75,7 +75,7 @@ Freshness: search queries rotate from a bank for each theme, searches are limite
 2. Group items covering the same story and keep the best source.
 3. Sonnet writes a three-line intro.
 4. Write `issues/YYYY-Www.md`, commit it, and email it to me via Resend.
-5. The email footer has a health line: runs this week, failures, explore shortfalls, spend this month.
+5. The email footer has a health line: runs this week, failures, explore shortfalls, tokens used this week.
 
 ### Item card
 
@@ -106,20 +106,18 @@ Discovery hubs (curated lists, Hacker News, r/ClaudeAI, GitHub and YouTube searc
 
 ## Observability
 
-- **Run log:** `runs/YYYY-MM-DD.json` for every run: per phase, the model, duration, tokens (input, output, cache), web searches and fetches, cost in USD, quota results, retries and errors. It's committed, so the debugging trail is public and browsable.
-- **Cost:** computed from each response's `usage` multiplied by a price table in `config/settings.ts`, plus web search fees. One place to update if prices change.
+- **Run log:** `runs/<date>T<time>-<kind>.json` for every run, indented JSON that opens with a one-line summary, e.g. `scan · ok · 4m 12s · 1.24M in · 0.06M out · 23 searches · 18 fetches · quotas met`. Each phase has its own summary line, then the detail: model, duration, tokens (input, output, cache), web searches and fetches, quota results, warnings and errors. It's committed, so the debugging trail is public and browsable.
+- **Tokens, not dollars:** token counts are shown in millions so they're easy to price by hand; the Console dashboard has the real spend.
 - **Errors:** caught per phase and recorded in the run log. Any failed phase makes the run exit non-zero, so GitHub's failed-workflow email lands in my inbox.
-- **Local dry run:** `pnpm scan --dry` runs the whole pipeline on fixtures with no API calls. Deterministic parts (URLs, dedupe, quotas, cost, verify) have vitest tests.
+- **Local dry run:** `pnpm scan --dry` runs the whole pipeline on fixtures with no API calls. Deterministic parts (URLs, dedupe, quotas, usage, verify) have vitest tests.
 
-## Budget guards
+## Limits
 
-| Level | Limit | What happens |
-|---|---|---|
-| Per run | $10 | Runaway guard only (a loop bug, a retry storm), set well above normal spend so it never trips on a healthy run. If it does: stop starting new phases, keep and store what's done, log a warning. |
-| Per month (sum of run logs) | $75 | Skip explore, seed sweep only; flagged in the weekly email. |
-| Console workspace | $85 | Hard stop from Anthropic. Auto-recharge off. |
+- **Money:** the Console workspace spend limit ($85 a month, auto-recharge off) is the only dollar cap, and the Console dashboard is where to check spend. The harness tracks tokens, not prices, so there's no price table to keep up to date.
+- **Runaway guard:** a run stops starting new phases once it has used 5M tokens (several times a normal run), keeps what's done, and logs a warning. It exists for loop bugs and retry storms, not normal operation.
+- If the Console cap is ever hit, runs fail loudly: the failed-workflow email arrives and the run log says why.
 
-Rough estimate: $2–4 a run (mostly Sonnet reading pages), so about $25–50 a month across 13 runs. Measure in week one and adjust.
+Rough estimate: around 1–2M tokens a run, mostly Sonnet reading pages. Check the Console after week one.
 
 ## Repo layout
 
@@ -130,12 +128,12 @@ harness-digest/
   config/
     themes.md              rubric and teaching-moment test (the judge reads this)
     sources.json           seed list, discovery hubs, per-source stats
-    settings.ts            quotas, models per phase, budgets, prices
+    settings.ts            quotas, models per phase, run limits
   src/
     scan.ts                entry point: runs the phases in order
     weekly.ts              builds the issue, sends the email
     phases/                seedSweep, explore, summarise, judge, verify, store
-    lib/                   urls, dedupe, quotas, cost, runLog, anthropic client
+    lib/                   urls, dedupe, quotas, usage, runLog, anthropic client
   state/
     seen.jsonl             dedupe memory (self-pruning)
     pool/YYYY-Www.jsonl    this week's passing items
@@ -159,16 +157,16 @@ harness-digest/
 - Summaries are in the harness's own words, with at most one short quote per item, length-checked by the verifier.
 - No personal data in the repo; recipient addresses live in secrets.
 - **Written for any reader.** Issues never mention me, my family, my work or any personal context. They should be safe to forward, and the recipient list may grow later (`DIGEST_EMAIL_TO` takes a comma-separated list). "Steal this" lines use generic framings: at work, for your team, for a side project, at home.
-- Run logs contain costs and counts, never keys.
+- Run logs contain token counts, never keys.
 
 ## Build order
 
-1. `lib/` (URLs, dedupe, quotas, cost, run log) with tests. No API calls.
-2. Read and summarise, plus judge, run locally on 3 hand-picked URLs. Check output quality and cost.
+1. `lib/` (URLs, dedupe, quotas, usage, run log) with tests. No API calls. **Done.**
+2. **Thin end-to-end slice, run locally from `.env`:** summarise and judge 2–3 hand-picked URLs, verify them, render a mini issue, and email it via Resend. It proves the keys, the model routing, the email and the run log before anything bigger is built on top.
 3. Seed sweep and explore with quota enforcement; full dry run.
-4. Verify and store, then the scan workflow on GitHub.
-5. Weekly issue and email.
-6. Watch for a week; tune the rubric, quotas and budgets.
+4. Store, and the scan workflow on GitHub.
+5. The weekly issue workflow.
+6. Watch for a week; tune the rubric, quotas and limits.
 
 ## Later, not v1
 

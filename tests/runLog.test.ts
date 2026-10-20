@@ -2,14 +2,12 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { ZERO_USAGE } from "../src/lib/cost.js";
+import { ZERO_USAGE } from "../src/lib/usage.js";
 import {
   finishRun,
   lookbackFrom,
-  monthToDateSpend,
   newRunLog,
-  overMonthlyBudget,
-  overRunBudget,
+  overTokenLimit,
   readRunLogs,
   recordPhase,
   writeRunLog,
@@ -18,36 +16,37 @@ import {
 
 const at = (iso: string) => new Date(iso);
 
-function pastRun(startedAt: string, status: RunLog["status"], costUsd = 0): RunLog {
+function pastRun(startedAt: string, status: RunLog["status"]): RunLog {
   const log = newRunLog("scan", at(startedAt));
   log.status = status;
-  log.totals.costUsd = costUsd;
   return log;
 }
 
 describe("recordPhase", () => {
-  it("adds each phase's usage and cost to the run totals", () => {
+  it("adds each phase's usage to the run totals and writes a one-line summary", () => {
     const log = newRunLog("scan", at("2026-10-21T02:00:00Z"));
-    const usage = { ...ZERO_USAGE, inputTokens: 1_000_000 }; // $2 on Sonnet
-    recordPhase(log, { name: "explore", model: "claude-sonnet-5-5", startedAt: at("2026-10-21T02:00:00Z"), usage }, at("2026-10-21T02:01:00Z"));
-    recordPhase(log, { name: "verify", model: null, startedAt: at("2026-10-21T02:01:00Z") }, at("2026-10-21T02:01:05Z"));
+    const usage = { ...ZERO_USAGE, inputTokens: 410_000, outputTokens: 20_000, webSearches: 22 };
+    recordPhase(log, { name: "explore", model: "claude-sonnet-5-5", startedAt: at("2026-10-21T02:00:00Z"), usage }, at("2026-10-21T02:01:14Z"));
+    recordPhase(log, { name: "verify", model: null, startedAt: at("2026-10-21T02:01:14Z") }, at("2026-10-21T02:01:16.5Z"));
 
-    expect(log.phases.map((p) => [p.name, p.durationMs, p.costUsd])).toEqual([
-      ["explore", 60_000, 2],
-      ["verify", 5_000, 0],
+    expect(log.phases.map((p) => p.summary)).toEqual([
+      "explore · sonnet-5-5 · 1m 14s · 0.41M in · 0.02M out · 22 searches · 0 fetches",
+      "verify · code · 3s",
     ]);
-    expect(log.totals.inputTokens).toBe(1_000_000);
-    expect(log.totals.costUsd).toBeCloseTo(2, 6);
+    expect(log.phases[1]!.durationSeconds).toBe(2.5);
+    expect(log.totals.inputTokens).toBe(410_000);
   });
 });
 
 describe("finishRun", () => {
-  it("marks a run with errors but completed phases as partial", () => {
+  it("marks a run with errors but completed phases as partial, and says so in the summary", () => {
     const log = newRunLog("scan", at("2026-10-21T02:00:00Z"));
     recordPhase(log, { name: "seed sweep", model: null, startedAt: at("2026-10-21T02:00:00Z") }, at("2026-10-21T02:00:01Z"));
+    log.quotas = { met: false, shortfalls: ["no new video found"] };
     log.errors.push({ phase: "explore", message: "timeout" });
-    finishRun(log, at("2026-10-21T02:05:00Z"));
+    finishRun(log, at("2026-10-21T02:04:12Z"));
     expect(log.status).toBe("partial");
+    expect(log.summary).toBe("scan · partial · 4m 12s · 0.00M in · 0.00M out · 0 searches · 0 fetches · quotas short (1) · 1 error(s)");
   });
 });
 
@@ -65,21 +64,18 @@ describe("lookbackFrom", () => {
   });
 });
 
-describe("budgets", () => {
-  it("sums spend for the current UTC month only", () => {
-    const logs = [pastRun("2026-09-30T02:00:00Z", "ok", 40), pastRun("2026-10-01T02:00:00Z", "ok", 3), pastRun("2026-10-03T02:00:00Z", "ok", 4)];
-    expect(monthToDateSpend(logs, at("2026-10-20T00:00:00Z"))).toBe(7);
-    expect(overMonthlyBudget(logs, at("2026-10-20T00:00:00Z"), 7)).toBe(true);
-    expect(overMonthlyBudget(logs, at("2026-10-20T00:00:00Z"), 75)).toBe(false);
-  });
-
-  it("flags a run that has hit its runaway guard", () => {
-    expect(overRunBudget(pastRun("2026-10-21T02:00:00Z", "running", 10), 10)).toBe(true);
+describe("overTokenLimit", () => {
+  it("trips once a run's billed tokens reach the limit", () => {
+    const log = newRunLog("scan", at("2026-10-21T02:00:00Z"));
+    log.totals = { ...ZERO_USAGE, inputTokens: 4_000_000, outputTokens: 999_999 };
+    expect(overTokenLimit(log, 5_000_000)).toBe(false);
+    log.totals.cacheReadTokens = 1;
+    expect(overTokenLimit(log, 5_000_000)).toBe(true);
   });
 });
 
 describe("writeRunLog and readRunLogs", () => {
-  it("writes one file per run and reads them back in start order", async () => {
+  it("writes one indented file per run and reads them back in start order", async () => {
     const dir = await mkdtemp(join(tmpdir(), "runs-"));
     try {
       expect(await readRunLogs(join(dir, "missing"))).toEqual([]);

@@ -47,22 +47,13 @@ export const EXPLORE_QUOTAS: ExploreQuotas = {
   maxRetries: 2,
 };
 
-export const BUDGETS_USD = {
-  // Runaway guard only: well above a normal run, so a healthy run never hits it.
-  perRun: 10,
-  // Once month-to-date spend passes this, runs skip explore (seed sweep only).
-  perMonth: 75,
+// Money is capped by the Console workspace spend limit and visible on the
+// Console dashboard, so the harness only tracks tokens. This is a runaway
+// guard (a loop bug, a retry storm), set several times above a normal run so
+// a healthy run never hits it.
+export const RUN_LIMITS = {
+  maxTokensPerRun: 5_000_000,
 } as const;
-
-// List prices in USD per million tokens (checked 2026-10-20). Cache writes
-// are 1.25x the input price; web search is billed per request; web fetch
-// costs only the tokens it adds.
-export const PRICES = {
-  "claude-sonnet-5-5": { input: 2, output: 10, cacheRead: 0.2 },
-  "claude-opus-5-5": { input: 4, output: 20, cacheRead: 0.2 },
-} as const satisfies Record<ModelId, { input: number; output: number; cacheRead: number }>;
-export const CACHE_WRITE_MULTIPLIER = 1.25;
-export const WEB_SEARCH_USD_PER_REQUEST = 10 / 1000;
 
 export const MEMORY = {
   // `passed` and `rejected` entries in state/seen.jsonl older than this are

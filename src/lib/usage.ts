@@ -1,13 +1,8 @@
-// Turns the `usage` block on every API response into dollars, so each phase
-// and each run knows exactly what it cost. Prices live in config/settings.ts.
+// Turns the `usage` block on every API response into totals we can add up
+// per phase and per run. Tokens and request counts only: dollars live on the
+// Console dashboard, where prices are always current.
 
 import type Anthropic from "@anthropic-ai/sdk";
-import {
-  CACHE_WRITE_MULTIPLIER,
-  PRICES,
-  WEB_SEARCH_USD_PER_REQUEST,
-  type ModelId,
-} from "../../config/settings.js";
 
 /** Our flattened, summable view of the API's usage block. */
 export interface UsageTotals {
@@ -50,15 +45,19 @@ export function addUsage(a: UsageTotals, b: UsageTotals): UsageTotals {
   };
 }
 
-/** Cost in USD. `input_tokens` excludes cached tokens, so the three input buckets don't overlap. */
-export function costUsd(model: ModelId, usage: UsageTotals): number {
-  const price = PRICES[model];
-  const perToken = (perMillion: number) => perMillion / 1_000_000;
-  return (
-    usage.inputTokens * perToken(price.input) +
-    usage.cacheWriteTokens * perToken(price.input * CACHE_WRITE_MULTIPLIER) +
-    usage.cacheReadTokens * perToken(price.cacheRead) +
-    usage.outputTokens * perToken(price.output) +
-    usage.webSearches * WEB_SEARCH_USD_PER_REQUEST
-  );
+/** Every token billed, in or out. `input_tokens` excludes cached tokens, so nothing is counted twice. */
+export function totalTokens(usage: UsageTotals): number {
+  return usage.inputTokens + usage.cacheWriteTokens + usage.cacheReadTokens + usage.outputTokens;
+}
+
+/** 1_234_567 → "1.23M". Easy to multiply by a per-million price in your head. */
+export function millions(tokens: number): string {
+  return `${(tokens / 1_000_000).toFixed(2)}M`;
+}
+
+/** One readable line, e.g. "1.24M in · 0.06M out · 23 searches · 18 fetches". */
+export function describeUsage(usage: UsageTotals): string {
+  const input = usage.inputTokens + usage.cacheWriteTokens + usage.cacheReadTokens;
+  const cached = usage.cacheReadTokens ? ` (${millions(usage.cacheReadTokens)} cached)` : "";
+  return `${millions(input)} in${cached} · ${millions(usage.outputTokens)} out · ${usage.webSearches} searches · ${usage.webFetches} fetches`;
 }
