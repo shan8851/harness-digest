@@ -62,7 +62,7 @@ jobs:
       - name: Commit the issue
         if: env.DRY_RUN != 'true'
         run: |
-          git config user.name "harness-digest[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add issues generated
           if git diff --cached --quiet; then echo "Nothing to commit"; exit 0; fi

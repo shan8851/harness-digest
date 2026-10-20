@@ -182,7 +182,7 @@ harness-digest/
 - **Manual for now** (Actions tab → Run workflow). The weekly workflow offers `dry-run` (builds and prints the issue; no email, nothing marked featured, nothing committed) or `send`.
 - **Going live** means uncommenting the `schedule:` blocks: scans at 02:00 UTC on Monday and Thursday, the weekly issue at 06:30 UTC on Sunday (scheduled runs always send). One email a week.
 - Secrets are referenced in the YAML (`${{ secrets.ANTHROPIC_API_KEY }}`) and exposed only to the step that needs them. Locally, the same variables come from `.env`.
-- The workflows commit `generated/` (and `issues/`) back to `main` as `harness-digest[bot]`, with the run's summary line as the commit message. The scan commits even if it failed, since passes are saved as they're kept and the run log explains the failure.
+- The workflows commit `generated/` (and `issues/`) back to `main` as `github-actions[bot]`, with the run's summary line as the commit message. The scan commits even if it failed, since passes are saved as they're kept and the run log explains the failure.
 - Both share a concurrency group, so a scan and the weekly issue never run at the same time.
 - Secrets: `ANTHROPIC_API_KEY` (a key from the credit-funded Console workspace), `RESEND_API_KEY`, `DIGEST_EMAIL_TO` (comma-separated recipients, kept secret so no addresses are in a public repo).
 - Stack: TypeScript, pnpm, vitest, `@anthropic-ai/sdk` with server-side `web_search` and `web_fetch`. No agent framework: the phases *are* the harness.
