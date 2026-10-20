@@ -1,0 +1,21 @@
+{
+  "seeds": [
+    { "name": "Anthropic Engineering", "url": "https://www.anthropic.com/engineering", "feed": null, "themes": [1, 2, 5] },
+    { "name": "Simon Willison", "url": "https://simonwillison.net/", "feed": "https://simonwillison.net/atom/everything/", "themes": [1, 2, 5] },
+    { "name": "Matt Pocock: AI Hero", "url": "https://www.aihero.dev/", "feed": null, "themes": [1, 5] },
+    { "name": "Matt Pocock: skills repo", "url": "https://github.com/mattpocock/skills", "feed": null, "themes": [1, 5] },
+    { "name": "Thoughtworks: Exploring Gen AI (martinfowler.com)", "url": "https://martinfowler.com/articles/exploring-gen-ai.html", "feed": "https://martinfowler.com/feed.atom", "themes": [1, 3, 4] },
+    { "name": "Addy Osmani", "url": "https://addyosmani.com/blog/", "feed": null, "themes": [1, 3] },
+    { "name": "Peter Steinberger", "url": "https://steipete.me/", "feed": null, "themes": [1, 5] },
+    { "name": "Geoffrey Huntley", "url": "https://ghuntley.com/", "feed": null, "themes": [1, 5] },
+    { "name": "Hamel Husain", "url": "https://hamel.dev/", "feed": null, "themes": [2] },
+    { "name": "Latent Space", "url": "https://www.latent.space/", "feed": null, "themes": [1, 4, 5] }
+  ],
+  "discoveryHubs": [
+    { "name": "Hacker News", "url": "https://news.ycombinator.com/" },
+    { "name": "r/ClaudeAI", "url": "https://www.reddit.com/r/ClaudeAI/" },
+    { "name": "awesome-agentic-engineering", "url": "https://github.com/fatihkc/awesome-agentic-engineering" },
+    { "name": "awesome-harness-engineering", "url": "https://github.com/ai-boost/awesome-harness-engineering" }
+  ],
+  "stats": {}
+}
