@@ -24,6 +24,13 @@ export const MODELS = {
 } as const;
 export type ModelId = (typeof MODELS)[keyof typeof MODELS];
 
+// How hard each model thinks. Judging is the product, so it gets "high";
+// summarising is routine reading, so "medium" is plenty.
+export const EFFORT = {
+  summarise: "medium",
+  judge: "high",
+} as const;
+
 // Minimums for the explore phase, checked in code after each attempt. Only
 // candidates we haven't seen before count, so re-finding old links never
 // satisfies a quota.
@@ -53,6 +60,24 @@ export const EXPLORE_QUOTAS: ExploreQuotas = {
 // a healthy run never hits it.
 export const RUN_LIMITS = {
   maxTokensPerRun: 5_000_000,
+} as const;
+
+// Sites the harness never looks at. X only serves content to a logged-in
+// browser, so fetching it returns a sign-in wall. These are excluded from web
+// search, dropped before they count as candidates, and refused at fetch time.
+// Revisit if X content turns out to be worth paying for.
+export const BLOCKED_HOSTS = ["x.com", "twitter.com"] as const;
+
+export const ITEMS = {
+  // Page text is capped before it reaches a model, to bound tokens per item.
+  // Long pages lose their tail; the run log notes when this happens.
+  maxPageChars: 80_000,
+  // Quotes longer than this fail verification (keeps us well clear of copying).
+  maxQuoteWords: 25,
+  // Items published longer ago than this fail verification.
+  maxAgeDays: 14,
+  // The judge's score must be at least this to pass, whatever it says.
+  minScore: 5,
 } as const;
 
 export const MEMORY = {

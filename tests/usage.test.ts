@@ -33,8 +33,9 @@ describe("addUsage and totalTokens", () => {
 
 describe("describeUsage", () => {
   it("reads as one line, in millions of tokens", () => {
-    expect(millions(1_234_567)).toBe("1.23M");
+    expect(millions(1_234_567)).toBe("1.235M");
+    expect(millions(3_800)).toBe("0.004M");
     const usage = { ...ZERO_USAGE, inputTokens: 1_000_000, cacheReadTokens: 240_000, outputTokens: 60_000, webSearches: 23, webFetches: 18 };
-    expect(describeUsage(usage)).toBe("1.24M in (0.24M cached) · 0.06M out · 23 searches · 18 fetches");
+    expect(describeUsage(usage)).toBe("1.240M in (0.240M cached) · 0.060M out · 23 searches · 18 fetches");
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canonicalUrl, sourceOf } from "../src/lib/urls.js";
+import { canonicalUrl, isBlocked, sourceOf } from "../src/lib/urls.js";
 
 describe("canonicalUrl", () => {
   it("strips tracking parameters, www, fragments and trailing slashes", () => {
@@ -60,5 +60,19 @@ describe("sourceOf", () => {
   it("groups YouTube videos together unless the link is to a channel", () => {
     expect(sourceOf("https://www.youtube.com/watch?v=abc")).toBe("youtube.com");
     expect(sourceOf("https://www.youtube.com/@SomeChannel")).toBe("youtube.com/@somechannel");
+  });
+});
+
+describe("isBlocked", () => {
+  it("blocks X under every hostname it uses", () => {
+    for (const url of ["https://x.com/a/status/1", "https://twitter.com/a", "https://mobile.twitter.com/a", "https://www.x.com/a"]) {
+      expect(isBlocked(url)).toBe(true);
+    }
+  });
+
+  it("allows everything else, but treats invalid URLs as blocked", () => {
+    expect(isBlocked("https://simonwillison.net/")).toBe(false);
+    expect(isBlocked("https://notx.com/")).toBe(false);
+    expect(isBlocked("not a url")).toBe(true);
   });
 });

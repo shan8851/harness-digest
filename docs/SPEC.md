@@ -33,7 +33,7 @@ Five themes, defined in [`config/themes.md`](../config/themes.md), which is also
 | Phase | Model | Why |
 |---|---|---|
 | Seed sweep, explore, read and summarise | `claude-sonnet-5-5` | Token-heavy searching and reading; Sonnet is half the price and good at it. |
-| Judge | `claude-opus-5-5` | The teaching-moment call *is* the product. Opus judges the summary plus an excerpt, not the whole page, which keeps it cheap. |
+| Judge | `claude-opus-5-5` | The teaching-moment call *is* the product. Opus reads the card and the full page text: an excerpt-only judge wrongly failed good items in the first smoke test. |
 | Weekly intro line | `claude-sonnet-5-5` | Three sentences; doesn't need Opus. |
 
 Models are set per phase in config, so swapping one is a one-line change.
@@ -69,6 +69,10 @@ Because only *unseen* candidates count, a run where explore keeps finding the sa
 
 Freshness: search queries rotate from a bank for each theme, searches are limited to the last 7 days, and explore is given a list of domains it used in the last 14 days, to avoid.
 
+### Candidate volume
+
+The judge is strict on purpose, so volume has to come from the top of the funnel. Each scan's run log records candidates found, judged, passed and verified, so the pass rate is visible. Rough target: around 90 new candidates a week (seed sweep plus explore across three scans) at a 20–30% pass rate gives 18–27 passes to pick the best 5–7 from. If weekly passes drop below about 10, raise the explore quotas before lowering the bar.
+
 ## The weekly issue (Sunday morning)
 
 1. Take this week's pool and pick the top 5 to 7 by judge score, with **at least 2 from outside the seed list** (or the issue says why not).
@@ -103,6 +107,8 @@ link · published 2026-10-18 · score 8/10
 - Changes are committed by the run, so the history of the list is visible in git.
 
 Discovery hubs (curated lists, Hacker News, r/ClaudeAI, GitHub and YouTube search) are starting points for explore, not seeds.
+
+**Blocked: X (x.com, twitter.com).** It only serves content to a logged-in browser. Blocked sites are excluded from web search, dropped before they count as candidates, and refused at fetch time (`BLOCKED_HOSTS` in settings). Revisit if X content proves worth paying for.
 
 ## Observability
 

@@ -4,6 +4,8 @@
 // 2. sourceOf: who published it, so "10 new sources" means 10 different
 //    people or sites, not 10 links from one blog.
 
+import { BLOCKED_HOSTS } from "../../config/settings.js";
+
 // Query parameters that only track where a click came from.
 const TRACKING_PARAMS = new Set([
   "ref", "ref_src", "ref_url", "fbclid", "gclid", "igshid",
@@ -66,6 +68,17 @@ export function canonicalUrl(raw: string): string | null {
   const query = kept.length ? `?${new URLSearchParams(kept).toString()}` : "";
   const path = segments.length ? `/${segments.join("/")}` : "";
   return `${host}${path}${query}`;
+}
+
+/** True for links on a site in BLOCKED_HOSTS (including subdomains), and for anything that isn't a valid URL. */
+export function isBlocked(raw: string): boolean {
+  let host: string;
+  try {
+    host = cleanHost(new URL(raw.trim()).hostname);
+  } catch {
+    return true;
+  }
+  return BLOCKED_HOSTS.some((blocked) => host === blocked || host.endsWith(`.${blocked}`));
 }
 
 /** Returns who published a URL, e.g. `simonwillison.net`, `github.com/mattpocock`, `reddit.com/r/claudeai`. */

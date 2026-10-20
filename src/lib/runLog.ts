@@ -12,11 +12,11 @@ import { MEMORY, RUN_LIMITS, type ModelId } from "../../config/settings.js";
 import { addUsage, describeUsage, totalTokens, ZERO_USAGE, type UsageTotals } from "./usage.js";
 import type { QuotaResult } from "./quotas.js";
 
-export type RunKind = "scan" | "weekly";
+export type RunKind = "scan" | "weekly" | "smoke";
 export type RunStatus = "running" | "ok" | "partial" | "failed";
 
 export interface PhaseLog {
-  summary: string; // e.g. "explore · sonnet-5-5 · 74s · 0.41M in · 0.02M out · 22 searches · 0 fetches"
+  summary: string; // e.g. "explore · sonnet-5-5 · 1m 14s · 0.410M in · 0.020M out · 22 searches · 0 fetches"
   name: string;
   model: ModelId | null; // null for code-only phases (dedupe, verify, store)
   startedAt: string;
@@ -26,7 +26,7 @@ export interface PhaseLog {
 }
 
 export interface RunLog {
-  summary: string; // e.g. "scan · ok · 4m 12s · 1.24M in · 0.06M out · 23 searches · 18 fetches · quotas met"
+  summary: string; // e.g. "scan · ok · 4m 12s · 1.240M in · 0.060M out · 23 searches · 18 fetches · quotas met"
   id: string; // also the filename, e.g. 2026-10-21T0200-scan
   kind: RunKind;
   status: RunStatus;

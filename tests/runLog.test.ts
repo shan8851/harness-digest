@@ -30,7 +30,7 @@ describe("recordPhase", () => {
     recordPhase(log, { name: "verify", model: null, startedAt: at("2026-10-21T02:01:14Z") }, at("2026-10-21T02:01:16.5Z"));
 
     expect(log.phases.map((p) => p.summary)).toEqual([
-      "explore · sonnet-5-5 · 1m 14s · 0.41M in · 0.02M out · 22 searches · 0 fetches",
+      "explore · sonnet-5-5 · 1m 14s · 0.410M in · 0.020M out · 22 searches · 0 fetches",
       "verify · code · 3s",
     ]);
     expect(log.phases[1]!.durationSeconds).toBe(2.5);
@@ -46,7 +46,7 @@ describe("finishRun", () => {
     log.errors.push({ phase: "explore", message: "timeout" });
     finishRun(log, at("2026-10-21T02:04:12Z"));
     expect(log.status).toBe("partial");
-    expect(log.summary).toBe("scan · partial · 4m 12s · 0.00M in · 0.00M out · 0 searches · 0 fetches · quotas short (1) · 1 error(s)");
+    expect(log.summary).toBe("scan · partial · 4m 12s · 0.000M in · 0.000M out · 0 searches · 0 fetches · quotas short (1) · 1 error(s)");
   });
 });
 

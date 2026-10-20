@@ -23,7 +23,7 @@ export const ZERO_USAGE: UsageTotals = {
   webFetches: 0,
 };
 
-export function fromApiUsage(usage: Anthropic.Usage): UsageTotals {
+export function fromApiUsage(usage: Anthropic.Usage | Anthropic.Beta.Messages.BetaUsage): UsageTotals {
   return {
     inputTokens: usage.input_tokens,
     outputTokens: usage.output_tokens,
@@ -50,12 +50,12 @@ export function totalTokens(usage: UsageTotals): number {
   return usage.inputTokens + usage.cacheWriteTokens + usage.cacheReadTokens + usage.outputTokens;
 }
 
-/** 1_234_567 → "1.23M". Easy to multiply by a per-million price in your head. */
+/** 1_234_567 → "1.235M". Three decimals so small runs don't round to zero. */
 export function millions(tokens: number): string {
-  return `${(tokens / 1_000_000).toFixed(2)}M`;
+  return `${(tokens / 1_000_000).toFixed(3)}M`;
 }
 
-/** One readable line, e.g. "1.24M in · 0.06M out · 23 searches · 18 fetches". */
+/** One readable line, e.g. "1.240M in · 0.060M out · 23 searches · 18 fetches". */
 export function describeUsage(usage: UsageTotals): string {
   const input = usage.inputTokens + usage.cacheWriteTokens + usage.cacheReadTokens;
   const cached = usage.cacheReadTokens ? ` (${millions(usage.cacheReadTokens)} cached)` : "";
