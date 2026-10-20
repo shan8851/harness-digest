@@ -37,5 +37,5 @@ Pass only if the item contains a **concrete, transferable technique** that a wor
 ## Writing rules
 
 - **Write for any reader.** Assume the issue may be forwarded to strangers. Never refer to a specific reader, their family, employer or projects.
-- **"Steal this"** is one concrete action, framed for a generic context: at work, for your team, for a side project, at home. Name the action, not the person.
+- **"Steal this"** is one sentence: the specific technique from the item, plus a concrete moment to try it ("before your next…", "the next time you…"). Name the actual skill, prompt or pattern, not a vague category, and keep the moment generic (work, a team, a side project, home), never a specific person or project.
 - Summaries are in your own words. At most one short quote (25 words or fewer) per item.

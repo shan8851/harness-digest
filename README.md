@@ -6,7 +6,14 @@ Every Monday, Wednesday and Friday it searches for instructive writing, videos a
 
 The harness is also the practice: it's built from the patterns it reads about. Fixed phases, quotas enforced in code rather than in prompts, a separate judge, a verifier that checks quotes against the source, self-pruning memory, and a cost log for every run.
 
-**Status:** design. See [docs/SPEC.md](docs/SPEC.md).
+**Status:** building. Step 1 of 6 done (URLs, dedupe, quotas, cost, run logs). See [docs/SPEC.md](docs/SPEC.md).
+
+## Develop
+
+```bash
+pnpm install
+pnpm check   # typecheck + tests
+```
 
 ## How it works
 

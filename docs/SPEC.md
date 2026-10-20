@@ -50,7 +50,7 @@ seed sweep ──► explore ──► dedupe + quota check ──► read & sum
 
 1. **Seed sweep:** check every source in `config/sources.json` for anything published since the last successful run (capped at 7 days).
 2. **Explore:** open search beyond the seed list. Quotas below.
-3. **Dedupe and quota check (code):** canonicalise URLs, drop anything already seen, then count what's left against the quotas. If explore falls short, send it back with the specific gap (for example, "3 new domains, need 10; theme 4 has no searches"), up to 2 retries. If it still falls short, record the shortfall and carry on.
+3. **Dedupe and quota check (code):** canonicalise URLs, drop anything already seen, then count what's left against the quotas. If explore falls short, send it back with the specific gap (for example, "3 new sources, need 10; theme 4 has no searches"), up to 2 retries. If it still falls short, record the shortfall and carry on.
 4. **Read and summarise:** for each new candidate, fetch the page and produce: technique (2 lines), "steal this" (1 line), theme, content type, time to read or watch, published date, and one short quote.
 5. **Judge (Opus):** apply the teaching-moment test with the rubric. Output: pass or fail, score from 1 to 10, theme, one-line reason. Structured output, so the result always parses.
 6. **Verify (code):** link resolves; the quote actually appears in the fetched page text; the quote is 25 words or fewer; the published date is within 14 days; all fields are present and valid.
@@ -61,7 +61,7 @@ seed sweep ──► explore ──► dedupe + quota check ──► read & sum
 Per run, counted from real tool calls and **new** (unseen) candidates only:
 
 - at least 20 distinct web searches
-- at least 20 new candidates from at least 10 domains outside the seed list
+- at least 20 new candidates from at least 10 sources outside the seed list (a *source* is a site, or an author on a shared platform: `github.com/owner`, `reddit.com/r/sub`, one Substack)
 - at least 2 searches per theme, and 4 for the theme with the fewest passes so far this week
 - at least one each of: video, repo, forum or discussion thread, blog post
 
@@ -89,7 +89,7 @@ link · published 2026-10-18 · score 8/10
 
 ## Dedupe without months of maintenance
 
-- **Canonical URL key:** lowercase host, strip `www.`, tracking parameters (`utm_*`, `ref`, `fbclid`...), fragments and trailing slashes. YouTube links reduce to the video ID; GitHub links reduce to `owner/repo`.
+- **Canonical URL key:** lowercase host, strip `www.`, tracking parameters (`utm_*`, `ref`, `fbclid`...), fragments and trailing slashes. YouTube links reduce to the video ID; GitHub links reduce to `owner/repo`, except issues, pull requests and discussions, which stay distinct. `twitter.com` and `x.com` are treated as one.
 - **`state/seen.jsonl`:** one line per URL ever considered: `{key, url, title, firstSeen, status}` where `status` is `featured`, `passed`, or `rejected`.
 - **Self-pruning:** each run drops `passed` and `rejected` lines older than 90 days. `featured` lines are kept forever (about 300 a year, trivial). The file stays bounded with zero manual upkeep.
 - **Same story, different URL:** a cheap title-similarity check in code catches obvious duplicates, and the weekly grouping step catches the rest.
