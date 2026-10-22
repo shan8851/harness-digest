@@ -1,0 +1,172 @@
+{
+  "summary": "scan · ok · 1m 41s · 10 kept of 44 found · 1.049M in · 0.026M out · 24 searches · 0 fetches · quotas met",
+  "id": "2026-10-22T0705-scan",
+  "kind": "scan",
+  "status": "ok",
+  "startedAt": "2026-10-22T07:05:57.213Z",
+  "finishedAt": "2026-10-22T07:07:37.898Z",
+  "lookbackFrom": "2026-10-20T13:54:48.356Z",
+  "quotas": {
+    "met": true,
+    "shortfalls": []
+  },
+  "counts": {
+    "fromSeeds": 29,
+    "fromExplore": 15,
+    "unfetchable": 4,
+    "stale": 18,
+    "judged": 22,
+    "rejected": 12,
+    "kept": 10,
+    "errors": 0,
+    "skippedForLimit": 0
+  },
+  "explore": {
+    "queriesByTheme": {
+      "harness-design": [
+        "agent loop design lessons building coding agent harness",
+        "context compaction long-running agents technique repo",
+        "MCP tool design for agents fewer tools better descriptions lessons",
+        "Hacker News harness engineering agent skills progressive disclosure"
+      ],
+      "verification": [
+        "agent browser test screenshots verify UI changes before merge workflow",
+        "mutation testing to check AI agent written tests",
+        "agent claims done but wasn't: forcing evidence of completion in AGENTS.md",
+        "independent verifier agent reviews coding agent output blog 2026",
+        "agent verification harness lessons learned this week eval regression gate dev.to October 2026"
+      ],
+      "lighter-review": [
+        "making AI-generated code easier to review stacked small diffs agent",
+        "code review is the bottleneck coding agents what I changed",
+        "agent writes spec plan approval before implementation reviewer reads plan not diff",
+        "second agent reviews first agent's code pre-commit hook lint architecture rules",
+        "reviewing agent code: claim cards, risk lanes, REVIEW.md, PR description template for agents"
+      ],
+      "non-engineers": [
+        "marketing team AI agent harness approval steps specific outputs",
+        "designers using Claude Code design tokens guardrails workflow blog",
+        "RevOps agent workflow skills non-technical team lessons learned",
+        "github repo Claude skills for product managers workflow",
+        "customer support agent evals human review workflow how we built"
+      ],
+      "real-setups": [
+        "my agent harness broke, here's what I changed in my AGENTS.md",
+        "dev.to how I structure Claude Code agents workflow lessons after months",
+        "github repo my personal agent harness skills hooks config open sourced",
+        "reddit ClaudeCode my workflow what actually works verification loop subagents",
+        "lessons from running autonomous coding agents overnight: what failed, what I fixed, October 2026"
+      ]
+    },
+    "retries": 0,
+    "weakestTheme": "non-engineers"
+  },
+  "totals": {
+    "inputTokens": 1049356,
+    "outputTokens": 25845,
+    "cacheWriteTokens": 0,
+    "cacheReadTokens": 0,
+    "webSearches": 24,
+    "webFetches": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "phases": [
+    {
+      "summary": "seed sweep · code · 4s",
+      "name": "seed sweep",
+      "model": null,
+      "startedAt": "2026-10-22T07:05:57.229Z",
+      "durationSeconds": 3.9,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "29 candidates from 23/23 seeds"
+      ]
+    },
+    {
+      "summary": "explore · sonnet-5-5 · 20s · 0.533M in · 0.006M out · 24 searches · 0 fetches",
+      "name": "explore",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-10-22T07:06:01.081Z",
+      "durationSeconds": 19.7,
+      "usage": {
+        "inputTokens": 532773,
+        "outputTokens": 5651,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 24,
+        "webFetches": 0
+      },
+      "notes": [
+        "0 retries",
+        "lighter-review: no submission; using every search result"
+      ]
+    },
+    {
+      "summary": "summarise · sonnet-5-5 · 1m 17s · 0.293M in · 0.013M out · 0 searches · 0 fetches",
+      "name": "summarise",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-10-22T07:06:20.765Z",
+      "durationSeconds": 77.1,
+      "usage": {
+        "inputTokens": 293277,
+        "outputTokens": 13479,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "https://github.blog/ai-and-ml/github-copilot/how-3-java-champions-are-using-github-copilot-for-increased-productivity/: revised for quote not found in page text",
+        "https://developers.googleblog.com/announcing-new-vllm-and-sglang-inference-engines-on-tpu/: revised for idea is 38 words, max 35",
+        "https://developers.googleblog.com/integrating-torchtpu-into-torchtitan-and-optimizing-models-for-tpu/: revised for idea is 36 words, max 35; quote is 26 words, max 25",
+        "https://www.microsoft.com/en-us/research/podcast/called-to-serve-tech-research-and-positive-impact-with-chris-white/: revised for quote not found in page text",
+        "https://ghuntley.com/patch/: revised for idea is 36 words, max 35",
+        "https://www.latent.space/p/sfcompute2: revised for quote is 26 words, max 25",
+        "https://www.freecodecamp.org/news/agentic-ai-reliability-book-build-a-testing-harness/: page text truncated"
+      ]
+    },
+    {
+      "summary": "judge · opus-5-5 · 1m 17s · 0.223M in · 0.007M out · 0 searches · 0 fetches",
+      "name": "judge",
+      "model": "claude-opus-5-5",
+      "startedAt": "2026-10-22T07:06:20.765Z",
+      "durationSeconds": 77.1,
+      "usage": {
+        "inputTokens": 223306,
+        "outputTokens": 6715,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": []
+    },
+    {
+      "summary": "store · code · 0s",
+      "name": "store",
+      "model": null,
+      "startedAt": "2026-10-22T07:07:37.897Z",
+      "durationSeconds": 0,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "44 added to memory",
+        "10 added to the 2026-W43 pool as they passed (5 from explore)"
+      ]
+    }
+  ]
+}
