@@ -61,6 +61,8 @@ export async function summarise(page: SuccessfulPage, feedback?: CardFeedback): 
     betas: [FALLBACK_BETA],
     fallbacks: "default",
     output_config: { effort: EFFORT.summarise, format: betaZodOutputFormat(SummarySchema) },
+    // Caches through the page text, so a revision pass re-reads it cheaply.
+    cache_control: { type: "ephemeral" },
     system: [
       "You write cards for a weekly digest about agentic engineering. You summarise one page at a time.",
       "Follow the writing rules in the rubric below exactly. The quote must appear verbatim in the page text, or the card is thrown away.",

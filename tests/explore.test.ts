@@ -45,6 +45,15 @@ describe("exploreTheme", () => {
     expect(run.usage.webSearches).toBe(2);
   });
 
+  it("asks for prompt caching, so the growing search context is re-read from cache", async () => {
+    let sent: Parameters<CallModel>[0] | undefined;
+    await exploreTheme(request, async (params) => {
+      sent = params;
+      return message({});
+    });
+    expect(sent?.cache_control).toEqual({ type: "ephemeral" });
+  });
+
   it("falls back to every real result if the model never submits", async () => {
     const run = await exploreTheme(request, async () => message({ searches: [{ query: "q", urls: ["https://a.example/1", "https://a.example/2"] }] }));
     expect(run.picks.map((p) => p.url)).toEqual(["https://a.example/1", "https://a.example/2"]);
