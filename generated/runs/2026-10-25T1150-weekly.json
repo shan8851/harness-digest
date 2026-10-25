@@ -1,0 +1,25 @@
+{
+  "summary": "weekly · ok · 0s · 0.000M in · 0.000M out · 0 searches · 0 fetches · 1 warning(s)",
+  "id": "2026-10-25T1150-weekly",
+  "kind": "weekly",
+  "status": "ok",
+  "startedAt": "2026-10-25T11:50:44.339Z",
+  "finishedAt": "2026-10-25T11:50:44.342Z",
+  "lookbackFrom": null,
+  "quotas": null,
+  "counts": null,
+  "explore": null,
+  "totals": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cacheWriteTokens": 0,
+    "cacheReadTokens": 0,
+    "webSearches": 0,
+    "webFetches": 0
+  },
+  "warnings": [
+    "the 2026-W43 issue was already sent; skipped (strong passes carry over to next week)"
+  ],
+  "errors": [],
+  "phases": []
+}
