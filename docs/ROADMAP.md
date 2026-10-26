@@ -16,7 +16,7 @@ The plan is to let it run for a few weeks before tuning anything, so changes are
 
 ## Things to watch
 
-- **Prompt caching.** Switched on 2026-10-22 for explore and summarise (top-level `cache_control`). The 2026-10-22 scan had zero cache reads on 1.05M input, half of it explore. Check `cacheReadTokens` in the next scan's run log; if explore's input barely moves, caching isn't landing on the web-search steps. Judge is left uncached: each page is judged once.
+- **Prompt caching.** On for explore only (top-level `cache_control`, since 2026-10-22). The 2026-10-26 scan read 215k of explore's 612k from cache, about 15% off that phase and roughly 5-10% off a scan. Summarise caching was removed the same day: 165k written, 0 read, because no card needed a revision. Judge and summarise see each page once, so caching can't help them much; batching is the bigger lever.
 
 - **Cost per scan.** The first two full scans cost $4.30 and $4.88, with empty memory and the full 7-day lookback. Normal scans cover 3–4 days and skip what's in memory; check the Console after the first few.
 - **Index seeds walk back through their archives.** Anthropic, Cursor and Google Developers (an undated feed) offer their next 10 older links each scan until memory covers them. That's free while the pages carry dates, since stale pages are dropped before any model call. Watch for undated ones reaching the summariser.
