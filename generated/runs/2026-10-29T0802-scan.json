@@ -1,0 +1,170 @@
+{
+  "summary": "scan · ok · 1m 56s · 19 kept of 38 found · 0.928M in (0.085M cached) · 0.031M out · 22 searches · 0 fetches · quotas met",
+  "id": "2026-10-29T0802-scan",
+  "kind": "scan",
+  "status": "ok",
+  "startedAt": "2026-10-29T08:02:16.355Z",
+  "finishedAt": "2026-10-29T08:04:12.824Z",
+  "lookbackFrom": "2026-10-26T07:25:00.490Z",
+  "quotas": {
+    "met": true,
+    "shortfalls": []
+  },
+  "counts": {
+    "fromSeeds": 23,
+    "fromExplore": 15,
+    "unfetchable": 1,
+    "stale": 6,
+    "judged": 31,
+    "rejected": 12,
+    "kept": 19,
+    "errors": 0,
+    "skippedForLimit": 0
+  },
+  "explore": {
+    "queriesByTheme": {
+      "harness-design": [
+        "tool design for coding agents lessons: fewer tools, better descriptions",
+        "agent loop structure plan execute verify harness Hacker News discussion 2026",
+        "context engineering coding agent skills SKILL.md progressive disclosure how I structure",
+        "github repo agent harness template skills hooks subagents dotfiles Claude Code Codex"
+      ],
+      "verification": [
+        "agent screenshots as evidence UI changes verify before merge",
+        "mutation testing to check AI-written tests agent",
+        "agent claims done but wasn't: how I make Claude verify its own work",
+        "AGENTS.md verification checklist pre-commit hooks agents backpressure"
+      ],
+      "lighter-review": [
+        "stacked small diffs AI agent code review workflow blog",
+        "writing the spec first so reviewing agent code is cheaper",
+        "reviewer agent second model reviews Claude Code output setup",
+        "reddit agent PRs too big to review how I constrain coding agents"
+      ],
+      "non-engineers": [
+        "marketing team Claude Code workflow non-technical lessons learned",
+        "customer support ops agent harness guardrails evals non-engineers",
+        "GitHub repo agent skills for product managers designers marketers",
+        "Hacker News Ask HN non-developers coworkers using AI agents workflow setup",
+        "how I built an AI agent for sales ops weekly report spec checklist human approval"
+      ],
+      "real-setups": [
+        "my AGENTS.md and agent workflow after a month, what I changed",
+        "dev.to my Claude Code subagents setup lessons broke",
+        "github repo my dotfiles claude skills hooks agent harness template",
+        "reddit how I structure my agent loop verification stopped agent from lying about tests",
+        "my agent harness what broke and what I changed, week of October 2026 blog"
+      ]
+    },
+    "retries": 0,
+    "weakestTheme": "non-engineers"
+  },
+  "totals": {
+    "inputTokens": 520121,
+    "outputTokens": 31145,
+    "cacheWriteTokens": 322602,
+    "cacheReadTokens": 85253,
+    "webSearches": 22,
+    "webFetches": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "phases": [
+    {
+      "summary": "seed sweep · code · 6s",
+      "name": "seed sweep",
+      "model": null,
+      "startedAt": "2026-10-29T08:02:16.370Z",
+      "durationSeconds": 6.3,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "23 candidates from 23/23 seeds"
+      ]
+    },
+    {
+      "summary": "explore · sonnet-5-5 · 20s · 0.408M in (0.085M cached) · 0.005M out · 22 searches · 0 fetches",
+      "name": "explore",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-10-29T08:02:22.651Z",
+      "durationSeconds": 19.8,
+      "usage": {
+        "inputTokens": 32,
+        "outputTokens": 5222,
+        "cacheWriteTokens": 322602,
+        "cacheReadTokens": 85253,
+        "webSearches": 22,
+        "webFetches": 0
+      },
+      "notes": [
+        "0 retries",
+        "verification: no submission; using every search result",
+        "lighter-review: 1 submitted URL(s) weren't in any search result; discarded"
+      ]
+    },
+    {
+      "summary": "summarise · sonnet-5-5 · 1m 30s · 0.276M in · 0.016M out · 0 searches · 0 fetches",
+      "name": "summarise",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-10-29T08:02:42.501Z",
+      "durationSeconds": 90.3,
+      "usage": {
+        "inputTokens": 276209,
+        "outputTokens": 16202,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "https://www.langchain.com/blog/building-agent-memory-openwiki-graphs: revised for \"go deeper if\" is 26 words, max 25",
+        "https://simonwillison.net/2026/Oct/28/vibe-game-development/: revised for idea is 38 words, max 35",
+        "https://martinfowler.com/fragments/2026-10-28.html: revised for quote is 27 words, max 25",
+        "https://seangoedecke.com/you-can-just-ask-ai-to-do-things/: revised for quote is 26 words, max 25; quote not found in page text",
+        "https://latent.space/p/supabase/: revised for idea is 36 words, max 35",
+        "https://latent.space/p/opus55/: page text truncated"
+      ]
+    },
+    {
+      "summary": "judge · opus-5-5 · 1m 30s · 0.244M in · 0.010M out · 0 searches · 0 fetches",
+      "name": "judge",
+      "model": "claude-opus-5-5",
+      "startedAt": "2026-10-29T08:02:42.501Z",
+      "durationSeconds": 90.3,
+      "usage": {
+        "inputTokens": 243880,
+        "outputTokens": 9721,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": []
+    },
+    {
+      "summary": "store · code · 0s",
+      "name": "store",
+      "model": null,
+      "startedAt": "2026-10-29T08:04:12.823Z",
+      "durationSeconds": 0,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "38 added to memory",
+        "19 added to the 2026-W44 pool as they passed (11 from explore)"
+      ]
+    }
+  ]
+}
