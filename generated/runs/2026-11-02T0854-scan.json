@@ -1,0 +1,168 @@
+{
+  "summary": "scan · ok · 1m 25s · 8 kept of 30 found · 0.934M in (0.228M cached) · 0.024M out · 24 searches · 0 fetches · quotas met",
+  "id": "2026-11-02T0854-scan",
+  "kind": "scan",
+  "status": "ok",
+  "startedAt": "2026-11-02T08:54:12.890Z",
+  "finishedAt": "2026-11-02T08:55:38.092Z",
+  "lookbackFrom": "2026-10-29T08:02:16.355Z",
+  "quotas": {
+    "met": true,
+    "shortfalls": []
+  },
+  "counts": {
+    "fromSeeds": 15,
+    "fromExplore": 15,
+    "unfetchable": 1,
+    "stale": 7,
+    "judged": 22,
+    "rejected": 14,
+    "kept": 8,
+    "errors": 0,
+    "skippedForLimit": 0
+  },
+  "explore": {
+    "queriesByTheme": {
+      "harness-design": [
+        "my AGENTS.md CLAUDE.md rules what broke and what I changed November 2026",
+        "Claude Code hooks pre-commit guardrails blog post agent stop hook",
+        "subagents context isolation orchestrator worker pattern lessons learned dev.to",
+        "agent memory files persistent notes across sessions coding agent setup walkthrough",
+        "agent harness lessons subagent skill hook I rewrote my setup this week"
+      ],
+      "verification": [
+        "coding agent evidence of work CI gate verification November 2026",
+        "evals for coding agent harness regression tests blog",
+        "agent self-check end-to-end test before PR Hacker News discussion",
+        "github repo agent verification skill proof of work tests reviewer agent"
+      ],
+      "lighter-review": [
+        "reviewing AI-generated pull requests guardrails checklist November 2026",
+        "Hacker News agent-generated code review burden pre-merge checks hooks",
+        "AGENTS.md rules to keep agent diffs small and reviewable",
+        "github repo claude code review skill plan approval before implementation",
+        "agent PR description evidence screenshots tests reviewers \"this week\" coding agent review bottleneck approach"
+      ],
+      "non-engineers": [
+        "Claude Code for designers workflow design system constraints agent",
+        "AI agent content marketing workflow skills brand voice checklist November 2026",
+        "finance ops accountants using coding agents reconciliation workflow verification",
+        "non-technical team shared agent skills repo CLAUDE.md for operations team",
+        "reddit non-coders building agent workflows lessons learned guardrails"
+      ],
+      "real-setups": [
+        "my Claude Code setup walkthrough CLAUDE.md hooks what I removed November 2026",
+        "Hacker News \"Show HN\" my coding agent harness lessons learned",
+        "how I run parallel coding agents worktrees workflow postmortem what went wrong",
+        "agent harness repo README \"lessons\" skills memory loop Codex Claude Code personal setup 2026",
+        "I rebuilt my agent workflow after it kept failing: lessons from running coding agents in production, November 2026"
+      ]
+    },
+    "retries": 0,
+    "weakestTheme": "non-engineers"
+  },
+  "totals": {
+    "inputTokens": 332170,
+    "outputTokens": 23895,
+    "cacheWriteTokens": 373938,
+    "cacheReadTokens": 227739,
+    "webSearches": 24,
+    "webFetches": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "phases": [
+    {
+      "summary": "seed sweep · code · 7s",
+      "name": "seed sweep",
+      "model": null,
+      "startedAt": "2026-11-02T08:54:12.903Z",
+      "durationSeconds": 6.5,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "15 candidates from 23/23 seeds"
+      ]
+    },
+    {
+      "summary": "explore · sonnet-5-5 · 21s · 0.602M in (0.228M cached) · 0.006M out · 24 searches · 0 fetches",
+      "name": "explore",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-11-02T08:54:19.408Z",
+      "durationSeconds": 21.2,
+      "usage": {
+        "inputTokens": 36,
+        "outputTokens": 6380,
+        "cacheWriteTokens": 373938,
+        "cacheReadTokens": 227739,
+        "webSearches": 24,
+        "webFetches": 0
+      },
+      "notes": [
+        "0 retries",
+        "lighter-review: 2 submitted URL(s) weren't in any search result; discarded"
+      ]
+    },
+    {
+      "summary": "summarise · sonnet-5-5 · 58s · 0.178M in · 0.011M out · 0 searches · 0 fetches",
+      "name": "summarise",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-11-02T08:54:40.568Z",
+      "durationSeconds": 57.5,
+      "usage": {
+        "inputTokens": 177614,
+        "outputTokens": 11429,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "https://cursor.com/blog/claude-code-extension-security-notice: revised for idea is 37 words, max 35",
+        "https://engineering.fb.com/2026/10/29/security/catching-bugs-before-they-land-jittestings-human-on-the-loop-approach-at-full-scale/: revised for quote is 27 words, max 25",
+        "https://martinfowler.com/rachels-ramblings/good-devs-wary.html: revised for idea is 38 words, max 35"
+      ]
+    },
+    {
+      "summary": "judge · opus-5-5 · 58s · 0.155M in · 0.006M out · 0 searches · 0 fetches",
+      "name": "judge",
+      "model": "claude-opus-5-5",
+      "startedAt": "2026-11-02T08:54:40.568Z",
+      "durationSeconds": 57.5,
+      "usage": {
+        "inputTokens": 154520,
+        "outputTokens": 6086,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": []
+    },
+    {
+      "summary": "store · code · 0s",
+      "name": "store",
+      "model": null,
+      "startedAt": "2026-11-02T08:55:38.091Z",
+      "durationSeconds": 0,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "30 added to memory",
+        "8 added to the 2026-W45 pool as they passed (7 from explore)"
+      ]
+    }
+  ]
+}
