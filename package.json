@@ -17,7 +17,8 @@
     "sweep": "tsx src/sweep.ts",
     "explore": "node --env-file-if-exists=.env --import tsx src/explore.ts",
     "scan": "node --env-file-if-exists=.env --import tsx src/scan.ts",
-    "weekly": "node --env-file-if-exists=.env --import tsx src/weekly.ts"
+    "weekly": "node --env-file-if-exists=.env --import tsx src/weekly.ts",
+    "eval:judge": "tsx src/evalJudge.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.135.0",

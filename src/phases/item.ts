@@ -9,7 +9,7 @@ import { ITEMS } from "../../config/settings.js";
 import type { IssueItem } from "../issue/render.js";
 import { fetchPage } from "../lib/page.js";
 import { addUsage, ZERO_USAGE, type UsageTotals } from "../lib/usage.js";
-import { judge } from "./judge.js";
+import { judge, type Verdict } from "./judge.js";
 import { summarise } from "./summarise.js";
 import { checkCard, quoteProblems, tooOld, verifyItem } from "./verify.js";
 
@@ -25,6 +25,8 @@ export interface ItemResult {
   status: ItemStatus;
   reason: string;
   item: IssueItem | null; // set when kept
+  verdict: Verdict | null; // set whenever the judge ran, pass or fail, so evals see both sides
+  problems: string[]; // verification problems, when verification failed it
   title: string; // best title we have, for memory
   summariseUsage: UsageTotals;
   judgeUsage: UsageTotals;
@@ -43,6 +45,8 @@ export async function processItem(url: string, options: { now: Date; checkAge: b
     status: "error",
     reason: "",
     item: null,
+    verdict: null,
+    problems: [],
     title: options.title ?? url,
     summariseUsage: ZERO_USAGE,
     judgeUsage: ZERO_USAGE,
@@ -79,9 +83,10 @@ export async function processItem(url: string, options: { now: Date; checkAge: b
 
     const { verdict, usage: judgeUsage } = await judge({ url: page.finalUrl, summary, pageText: page.text });
     result.judgeUsage = judgeUsage;
+    result.verdict = verdict;
 
     const problems = verifyItem({ summary, verdict, pageText: page.text, publishedDate: page.publishedDate }, options);
-    if (problems.length) return { ...result, status: "rejected", reason: `${verdict.score}/10 · ${problems.join("; ")}` };
+    if (problems.length) return { ...result, status: "rejected", problems, reason: `${verdict.score}/10 · ${problems.join("; ")}` };
     return {
       ...result,
       status: "kept",

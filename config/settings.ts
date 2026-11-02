@@ -8,6 +8,8 @@ export const PATHS = {
   memory: "generated/memory.jsonl", // every link considered in the last 30 days
   pool: "generated/pool", // one file per ISO week of passing items
   runs: "generated/runs", // one JSON log per run
+  verdicts: "generated/verdicts", // one file per ISO week of every judge verdict, pass or fail, for evals
+  evals: "evals", // hand-labelled eval sets; written by people, not runs
   issues: "issues", // the weekly issues, as markdown
   local: "generated/local", // smoke and explore outputs; git-ignored
 } as const;
@@ -154,4 +156,18 @@ export const MEMORY = {
   titleSimilarityThreshold: 0.8,
   // A scan never looks back further than this, even after a long outage.
   maxLookbackDays: 7,
+} as const;
+
+export const EVALS = {
+  // The judge eval sample (pnpm eval:judge sample): how many items to take
+  // from each score band. Weighted towards the 4/5 boundary, because that's
+  // where a human and the judge are most likely to disagree.
+  judgeStrata: [
+    { status: "rejected", minScore: 1, maxScore: 2, take: 4 },
+    { status: "rejected", minScore: 3, maxScore: 3, take: 5 },
+    { status: "rejected", minScore: 4, maxScore: 4, take: 6 },
+    { status: "kept", minScore: 5, maxScore: 6, take: 6 },
+    { status: "kept", minScore: 7, maxScore: 7, take: 5 },
+    { status: "kept", minScore: 8, maxScore: 10, take: 4 },
+  ],
 } as const;

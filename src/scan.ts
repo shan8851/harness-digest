@@ -13,6 +13,7 @@ import { appendPool, fromExplore, isoWeek, loadPool, weakestTheme } from "./lib/
 import { finishRun, lookbackFrom, newRunLog, readRunLogs, recordPhase, writeRunLog, type ScanCounts } from "./lib/runLog.js";
 import { loadSeeds } from "./lib/sources.js";
 import { addUsage, describeUsage, totalTokens, ZERO_USAGE } from "./lib/usage.js";
+import { appendVerdicts } from "./lib/verdicts.js";
 import { runExplore } from "./phases/explore.js";
 import { mapLimited, processItem, type ItemResult } from "./phases/item.js";
 import { sweepSeeds, type Candidate } from "./phases/seedSweep.js";
@@ -86,6 +87,12 @@ const results = await mapLimited(candidates, SCAN.concurrency, async (candidate)
   // Save each pass straight away: the cards are the expensive part.
   if (result.item) {
     await appendPool(POOL_DIR, week, [{ ...result.item, key: candidate.key, foundBy: candidate.foundBy, source: candidate.source, scannedAt: now.toISOString() }]);
+  }
+  // Every verdict, pass or fail, for the judge eval (evals/judge). Paid for, so saved straight away too.
+  if (result.verdict && (result.status === "kept" || result.status === "rejected")) {
+    await appendVerdicts(PATHS.verdicts, week, [
+      { key: candidate.key, url: candidate.url, title: result.title, status: result.status, verdict: result.verdict, problems: result.problems, scannedAt: now.toISOString() },
+    ]);
   }
   const mark = { kept: "✓", rejected: "✗", unfetchable: "–", stale: "–", error: "!" }[result.status];
   console.log(`${mark} ${candidate.url}\n    ${result.status}: ${result.reason}`);
