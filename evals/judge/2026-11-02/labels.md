@@ -52,8 +52,8 @@ https://martinfowler.com/rachels-ramblings/good-devs-wary.html
 
 https://latent.space/p/how_anthropic_ships_the_1_llm_in_the_world_safely_separating_the_brain_from_the_hands/
 
-- label:
-- why:
+- label: fail
+- why: fail as the link has 0 context other than podcast link. However need to decide if long form podcasts will get listened to or we just get the harness to reject them or list them as bonus content or something when time allows
 
 ## 08. Skills & Progressive Disclosure
 
@@ -66,22 +66,22 @@ https://learn.agentpatterns.ai/harness-engineering/skills-and-progressive-disclo
 
 https://seangoedecke.com/elegance-and-intelligence-are-anticorrelated/
 
-- label:
-- why:
+- label: fail
+- why: I guess the other side of number 24, same author, same too low level, even though reasonable not really enough practical akeaway so another reason not to loosen the eval on these
 
 ## 10. Fragments: October 28
 
 https://martinfowler.com/fragments/2026-10-28.html
 
-- label:
-- why:
+- label: fail
+- why: seems to me another opinon piece more than anything with nothing really actionable
 
 ## 11. An agent PR that only says 'fixed' makes the reviewer redo the diagnosis
 
 https://dev.to/jeff_pdc/an-agent-pr-that-only-says-fixed-makes-the-reviewer-redo-the-diagnosis-32jo
 
-- label:
-- why:
+- label: pass
+- why: we have seena  few of these exact posts now, not sure this is the best but in isolation still a pass. It talks about providing enough context, talks about clear acceptance criteria for the agents and gives examples of how to get there
 
 ## 12. AI Is Getting Good at Math. Here's Why.
 
@@ -94,43 +94,43 @@ https://latent.space/p/ai-is-getting-good-at-math/
 
 https://developers.googleblog.com/building-conversational-commerce-with-multi-agent-swarms-on-gcp-a-working-prototype/
 
-- label:
-- why:
+- label: pass
+- why: infogrpaphics, mental models, inroduces agent swarms, feel liek stuff can be gleaned from thi
 
 ## 14. Announcing New vLLM and SGLang Inference Engines on TPU
 
 https://developers.googleblog.com/announcing-new-vllm-and-sglang-inference-engines-on-tpu/
 
-- label:
-- why:
+- label: fail
+- why: didn't read tbh, the title is enough to know
 
 ## 15. Architecting Governed, Self-Evolving AI Agents on Google Cloud
 
 https://developers.googleblog.com/architecting-governed-self-evolving-ai-agents-on-gemini-agent-platform/
 
-- label:
-- why:
+- label:pass
+- why:I think this is not bad, it doesn't give concrete things todo, but if you read it a few times and sit wiht it I think we ca connect the dots ourselves and inadvertantly does actual give a roadmap to delf improvment loops
 
 ## 16. Build Generative UI Apps with A2UI & CopilotKit Agents
 
 https://developers.googleblog.com/build-generative-ui-apps-with-a2ui-copilotkit-agents/
 
-- label:
-- why:
+- label: fail
+- why: again a bit too salesy/promotion of gooles own products rather than presenting ideas
 
 ## 17. Powering the Agent Development Lifecycle with any framework, from ADK to LangChain and beyond
 
 https://developers.googleblog.com/powering-the-agent-development-lifecycle-with-any-framework-from-adk-to-langchain-and-beyond/
 
-- label:
-- why:
+- label: fail
+- why: a bit salesy even for google
 
 ## 18. Context Engineering Starts with Retrieval
 
 https://www.langchain.com/blog/context-engineering-starts-with-retrieval
 
-- label:
-- why:
+- label: PASS
+- why: Another very strong one from langchain. good visuals, great examples that are easy to build on and customise, tackles one of the most difficult topics -- context
 
 ## 19. Streaming comes to API Gateway: real-time and AI-ready APIs, without changing your spec
 
@@ -143,8 +143,8 @@ https://developers.googleblog.com/streaming-comes-to-api-gateway-real-time-and-a
 
 https://developers.googleblog.com/step-by-step-guide-build-a-voice-agent-that-never-goes-silent-using-adk/
 
-- label:
-- why:
+- label: pass
+- why: I guess a vendor promotion piece but when it's google it is kinda allowed I guess. Essentially an old school tutorial for the ai age so walks you through things plus presents ideas in such a way they can be adapted for other use cases
 
 ## 21. Give a coding-agent delivery enough evidence to review
 
@@ -206,8 +206,8 @@ https://github.com/mattpocock/skills
 
 https://dev.to/lizhuojunx86/90-of-my-coding-agents-rework-came-from-my-own-work-orders-51n4
 
-- label:
-- why:
+- label: pass
+- why: a little ai sloppy in the writing, but talks about real stuff, token cost optimisation, using different models for different use cases and shares ideas on how to get things working in harmony, this isn't the best execution but is good content on topics I want to read about
 
 ## 30. Managed Deep Agents v0.10: Browser Use and Async Subagents
 
