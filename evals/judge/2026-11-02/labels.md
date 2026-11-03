@@ -109,7 +109,7 @@ https://developers.googleblog.com/announcing-new-vllm-and-sglang-inference-engin
 https://developers.googleblog.com/architecting-governed-self-evolving-ai-agents-on-gemini-agent-platform/
 
 - label:pass
-- why:I think this is not bad, it doesn't give concrete things todo, but if you read it a few times and sit wiht it I think we ca connect the dots ourselves and inadvertantly does actual give a roadmap to delf improvment loops
+- why:I think this is not bad, it doesn't give concrete things todo, but if you read it a few times and sit wiht it I think we ca connect the dots ourselves and inadvertantly does actual give a roadmap to delf improvment loops (3 Nov, after seeing the judge's reason: I agree with it. High-level gates and no code is a fail; it was close.)
 
 ## 16. Build Generative UI Apps with A2UI & CopilotKit Agents
 
