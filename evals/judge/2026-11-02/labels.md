@@ -24,8 +24,8 @@ https://paddo.dev/blog/claude-reviewing-claude/
 
 https://engineering.fb.com/2026/10/27/security/privacylib/
 
-- label:
-- why:
+- label: PASS
+- why: another close one imo, this is definitely vendor pitch and tightly scoped to privacylab. But it is well formatted, has tables and infographics and code snippets, so it is reasonable to implement your own thing that uses the patterns, but completely rebuilding it would be tough ofc
 
 ## 04. Why Agents Love Supabase
 
@@ -87,8 +87,8 @@ https://dev.to/jeff_pdc/an-agent-pr-that-only-says-fixed-makes-the-reviewer-redo
 
 https://latent.space/p/ai-is-getting-good-at-math/
 
-- label:
-- why:
+- label: Fail
+- why: Interesting and informative, btu I don't really see a clear takeaway or try this in your next session here.
 
 ## 13. Building Conversational Commerce with Multi-Agent Swarms on GCP: A Working Prototype
 
@@ -136,8 +136,8 @@ https://www.langchain.com/blog/context-engineering-starts-with-retrieval
 
 https://developers.googleblog.com/streaming-comes-to-api-gateway-real-time-and-ai-ready-apis-without-changing-your-spec/
 
-- label:
-- why:
+- label: Fail
+- why: This is the vendor post we can safely vut imo, doesn't really feel liek anything is liftable as a process or way of working
 
 ## 20. Build a Voice Agent That Never Goes Silent using ADK
 
@@ -178,22 +178,22 @@ https://seangoedecke.com/you-can-just-ask-ai-to-do-things/
 
 https://latent.space/p/modal-d/
 
-- label:
-- why:
+- label: Fail
+- why: DIdn't read - another ranscript article. Aain this would fall tot he if it is 8/10 or better move to the bonus content
 
 ## 26. The Programmable Data Center — Evan Conrad, SF Compute
 
 https://www.latent.space/p/sfcompute2
 
-- label:
-- why:
+- label: Fail
+- why: same as 25
 
 ## 27. How Numan Built an Eval-First AI Health Coach with LangGraph and LangSmith
 
 https://www.langchain.com/blog/how-numan-built-an-eval-first-ai-health-coach-with-langgraph-and-langsmith
 
-- label:
-- why:
+- label:Pass
+- why: One of the weaker lanchain ones but again langchain is great overall. Well writtem, the last section on building an ai coach is great
 
 ## 28. mattpocock/skills
 
@@ -213,5 +213,5 @@ https://dev.to/lizhuojunx86/90-of-my-coding-agents-rework-came-from-my-own-work-
 
 https://www.langchain.com/blog/managed-deep-agents-browser-use-and-asynchronous-subagents
 
-- label:
-- why:
+- label: Fail
+- why: First langchain fail. this is pitchy, and too scoped to the specific product/tool
