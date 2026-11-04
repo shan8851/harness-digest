@@ -23,7 +23,9 @@ export const THEMES = [
 ] as const;
 export type Theme = (typeof THEMES)[number];
 
-export const CONTENT_TYPES = ["blog", "repo", "thread"] as const;
+// "podcast" is set by the summariser from the page; podcasts only ever appear in the
+// issue's bonus section (see WEEKLY.bonusMinScore).
+export const CONTENT_TYPES = ["blog", "repo", "thread", "podcast"] as const;
 export type ContentType = (typeof CONTENT_TYPES)[number];
 
 // Model routing: Sonnet does the token-heavy finding and reading, Opus makes
@@ -34,6 +36,7 @@ export const MODELS = {
   summarise: "claude-sonnet-5-5",
   judge: "claude-opus-5-5",
   weeklyIntro: "claude-sonnet-5-5",
+  sameIdea: "claude-sonnet-5-5",
 } as const;
 export type ModelId = (typeof MODELS)[keyof typeof MODELS];
 
@@ -42,6 +45,7 @@ export type ModelId = (typeof MODELS)[keyof typeof MODELS];
 export const EFFORT = {
   explore: "medium",
   weeklyIntro: "low",
+  sameIdea: "medium", // "low" grouped items that only shared a theme (tried on W44)
   summarise: "medium",
   judge: "high",
 } as const;
@@ -65,7 +69,7 @@ export const EXPLORE_QUOTAS: ExploreQuotas = {
   minNewSources: 10, // distinct sources outside the seed list
   minSearchesPerTheme: 2,
   minSearchesWeakestTheme: 4, // the theme with the fewest passes this week
-  requiredTypes: CONTENT_TYPES, // at least one new candidate of each
+  requiredTypes: ["blog", "repo", "thread"], // at least one new candidate of each (podcasts aren't sought)
   maxRetries: 2,
 };
 
@@ -93,6 +97,19 @@ export const WEEKLY = {
   // week they're gone for good.
   carryOverMinScore: 8,
   carryOverPenalty: 1,
+  // Podcasts never go in the main list. The best one scoring at least this
+  // goes in a "bonus listen" section; most weeks there won't be one.
+  bonusMinScore: 8,
+  maxBonus: 1,
+  // Before picking, the top this-many items go to a small model that groups
+  // ones teaching the same idea, and only the best of each group is kept.
+  // Title matching alone missed two near-identical template repos (W44).
+  sameIdeaWindow: 15,
+  // "log" records the groups in the run log without dropping anything; "drop"
+  // acts on them. Starts in "log": on W43 and W44 the model grouped some real
+  // duplicates but also items that only shared a passing technique. Switch to
+  // "drop" once a few weeks of logs show the groups are right.
+  sameIdeaMode: "log" as "log" | "drop",
 } as const;
 
 export const EXPLORE = {

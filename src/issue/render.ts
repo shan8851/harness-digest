@@ -25,6 +25,8 @@ export interface IssueInput {
   title: string; // e.g. "harness-digest · 2026-W43"
   intro: string;
   items: IssueItem[];
+  /** The bonus listen: at most a podcast or two that cleared a higher bar. Shown after the main cards. */
+  bonus?: IssueItem[];
   health: string; // one line: runs, failures, tokens
   /** Items the judge or verifier rejected, shown only in smoke-test issues. */
   rejected?: { url: string; reason: string }[];
@@ -67,9 +69,9 @@ export function renderMarkdown(issue: IssueInput): string {
   const contents = showContents(issue)
     ? ["## This week", "", ...issue.items.map((item, i) => `${i + 1}. **${item.summary.title}**: ${item.summary.idea}`), ""]
     : [];
-  const cards = issue.items.map((item, i) =>
+  const card = (item: IssueItem, label: string) =>
     [
-      `### ${i + 1}. [${item.summary.title}](${item.url})`,
+      `### ${label}[${item.summary.title}](${item.url})`,
       `*${metaLine(item)}*`,
       "",
       item.summary.idea,
@@ -81,8 +83,9 @@ export function renderMarkdown(issue: IssueInput): string {
       "",
       `**Go deeper if:** ${item.summary.goDeeperIf}`,
       ...(item.summary.quote.trim() ? ["", `> "${item.summary.quote}"`] : []),
-    ].join("\n"),
-  );
+    ].join("\n");
+  const cards = issue.items.map((item, i) => card(item, `${i + 1}. `));
+  const bonus = issue.bonus?.length ? ["## Bonus listen", "", ...issue.bonus.flatMap((item) => [card(item, ""), ""])] : [];
   const rejected = issue.rejected?.length ? ["## Judged out", "", ...issue.rejected.map((r) => `- ${r.url}: ${r.reason}`), ""] : [];
   return [
     `# ${issue.title}`,
@@ -91,6 +94,7 @@ export function renderMarkdown(issue: IssueInput): string {
     "",
     ...contents,
     ...cards.flatMap((c) => [c, "", "---", ""]),
+    ...bonus,
     ...rejected,
     `*${issue.health}*`,
     "",
@@ -102,9 +106,9 @@ export function renderText(issue: IssueInput): string {
   const contents = showContents(issue)
     ? ["THIS WEEK", "", ...issue.items.map((item, i) => `${i + 1}. ${item.summary.title}\n   ${item.summary.idea}`), ""]
     : [];
-  const cards = issue.items.map((item, i) =>
+  const card = (item: IssueItem, label: string) =>
     [
-      `${i + 1}. ${item.summary.title}`,
+      `${label}${item.summary.title}`,
       `   ${metaLine(item)}`,
       "",
       `   ${item.summary.idea}`,
@@ -117,10 +121,11 @@ export function renderText(issue: IssueInput): string {
       `   Go deeper if: ${item.summary.goDeeperIf}`,
       "",
       `   ${item.url}`,
-    ].join("\n"),
-  );
+    ].join("\n");
+  const cards = issue.items.map((item, i) => card(item, `${i + 1}. `));
+  const bonus = issue.bonus?.length ? ["BONUS LISTEN", "", ...issue.bonus.flatMap((item) => [card(item, ""), ""])] : [];
   const rejected = issue.rejected?.length ? ["JUDGED OUT", "", ...issue.rejected.map((r) => `- ${r.url}\n  ${r.reason}`), ""] : [];
-  return [issue.title, "", issue.intro, "", ...contents, ...cards.flatMap((c) => [c, ""]), ...rejected, issue.health, ""].join("\n");
+  return [issue.title, "", issue.intro, "", ...contents, ...cards.flatMap((c) => [c, ""]), ...bonus, ...rejected, issue.health, ""].join("\n");
 }
 
 function escapeHtml(text: string): string {
@@ -138,9 +143,9 @@ export function renderHtml(issue: IssueInput): string {
       </div>`
     : "";
 
-  const card = (item: IssueItem, i: number) => `
+  const card = (item: IssueItem, label: string) => `
     <div style="margin:0 0 32px;padding:0 0 28px;border-bottom:1px solid #e5e7eb">
-      <h3 style="margin:0 0 4px;font-size:17px">${i + 1}. <a href="${escapeHtml(item.url)}" style="color:#1a56db;text-decoration:none">${escapeHtml(item.summary.title)}</a></h3>
+      <h3 style="margin:0 0 4px;font-size:17px">${label}<a href="${escapeHtml(item.url)}" style="color:#1a56db;text-decoration:none">${escapeHtml(item.summary.title)}</a></h3>
       <div style="${muted};font-size:13px;margin:0 0 12px">${escapeHtml(metaLine(item))}</div>
       <p style="margin:0 0 12px;font-size:16px">${escapeHtml(item.summary.idea)}</p>
       <div style="font-weight:600;margin:0 0 4px">How it works</div>
@@ -162,7 +167,8 @@ export function renderHtml(issue: IssueInput): string {
     <h1 style="font-size:20px;margin:0 0 8px">${escapeHtml(issue.title)}</h1>
     <p style="margin:0 0 24px;color:#374151">${escapeHtml(issue.intro)}</p>
     ${contents}
-    ${issue.items.map(card).join("\n")}
+    ${issue.items.map((item, i) => card(item, `${i + 1}. `)).join("\n")}
+    ${issue.bonus?.length ? `<h2 style="font-size:15px;margin:8px 0 12px">Bonus listen</h2>${issue.bonus.map((item) => card(item, "")).join("\n")}` : ""}
     ${rejected}
     <p style="margin:24px 0 0;color:#9ca3af;font-size:12px">${escapeHtml(issue.health)} · <a href="https://github.com/shan8851/harness-digest" style="color:#9ca3af">harness-digest</a></p>
   </div></body></html>`;

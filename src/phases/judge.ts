@@ -20,8 +20,15 @@ export const VerdictSchema = z.object({
   score: z.number().int().min(1).max(10),
   theme: z.enum(THEMES).describe("The best-fitting theme; correct the card if it got this wrong"),
   reason: z.string().describe("One sentence explaining the verdict, naming the technique or what's missing"),
+  readability: z
+    .number()
+    .int()
+    .min(-1)
+    .max(1)
+    .describe("How easy the page is to skim, per the rubric: -1, 0 or +1. Separate from the score; code combines them for ranking"),
 });
-export type Verdict = z.infer<typeof VerdictSchema>;
+// Verdicts saved before November 2026 have no readability, so it's optional once stored.
+export type Verdict = Omit<z.infer<typeof VerdictSchema>, "readability"> & { readability?: number };
 
 export async function judge(input: { url: string; summary: Summary; pageText: string }): Promise<{ verdict: Verdict; usage: UsageTotals }> {
   const rubric = await loadRubric();

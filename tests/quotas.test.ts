@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CONTENT_TYPES, THEMES, type Theme } from "../config/settings.js";
+import { EXPLORE_QUOTAS, THEMES, type Theme } from "../config/settings.js";
 import { checkExploreQuotas, gapMessage, type ExploreReport } from "../src/lib/quotas.js";
 
 const quotas = {
@@ -8,7 +8,7 @@ const quotas = {
   minNewSources: 3,
   minSearchesPerTheme: 1,
   minSearchesWeakestTheme: 2,
-  requiredTypes: CONTENT_TYPES,
+  requiredTypes: EXPLORE_QUOTAS.requiredTypes,
   maxRetries: 2,
 };
 

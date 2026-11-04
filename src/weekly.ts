@@ -9,15 +9,16 @@
 //                           the same, as if it were that date (for testing carry-over)
 
 import { mkdir, writeFile } from "node:fs/promises";
-import { MODELS, PATHS } from "../config/settings.js";
+import { MODELS, PATHS, WEEKLY } from "../config/settings.js";
 import { renderHtml, renderMarkdown, renderText } from "./issue/render.js";
 import { loadSeen, saveSeen } from "./lib/dedupe.js";
 import { sendEmail } from "./lib/email.js";
 import { issueExists } from "./lib/issues.js";
-import { carryOver, isoWeek, loadPool, pickIssue } from "./lib/pool.js";
+import { carryOver, dropSameIdea, isPodcast, isoWeek, loadPool, pickBonus, pickIssue, rankPool } from "./lib/pool.js";
 import { finishRun, newRunLog, readRunLogs, recordPhase, writeRunLog } from "./lib/runLog.js";
 import { addUsage, describeUsage, ZERO_USAGE } from "./lib/usage.js";
 import { writeIntro } from "./phases/intro.js";
+import { groupSameIdea } from "./phases/sameIdea.js";
 
 const SEEN_PATH = PATHS.memory;
 const dryRun = process.argv.includes("--dry-run");
@@ -49,7 +50,28 @@ const pool = (await loadPool(PATHS.pool, week)).filter((e) => !featured.has(e.ke
 // Last week's strong unpicked items get one more chance (see WEEKLY.carryOverMinScore).
 const lastWeek = isoWeek(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000));
 const carried = carryOver(await loadPool(PATHS.pool, lastWeek), featured);
-const picks = pickIssue([...pool, ...carried]);
+
+// One card per idea: the top of the ranking goes to a small model that groups
+// near-duplicates, and code keeps the best of each group. If the check fails,
+// the issue goes out without it (title matching in pickIssue still applies).
+let candidates = [...pool, ...carried];
+let started = clock();
+try {
+  const top = rankPool(candidates.filter((e) => !isPodcast(e))).slice(0, WEEKLY.sameIdeaWindow);
+  const { groups, reasons, usage } = await groupSameIdea(top);
+  const { kept, dropped } = dropSameIdea(candidates, groups);
+  if (WEEKLY.sameIdeaMode === "drop") candidates = kept;
+  const verb = WEEKLY.sameIdeaMode === "drop" ? "dropped" : "would drop (log mode)";
+  recordPhase(
+    log,
+    { name: "same idea", model: MODELS.sameIdea, startedAt: started, usage, notes: [...reasons.map((r) => `group: ${r}`), ...dropped.map((d) => `${verb} ${d.key} (same idea as ${d.keptInstead})`)] },
+    clock(),
+  );
+} catch (error) {
+  log.warnings.push(`same-idea check failed, skipped: ${(error as Error).message.split("\n")[0]!.slice(0, 200)}`);
+}
+const picks = pickIssue(candidates);
+const bonus = pickBonus(candidates);
 
 // The health line: how the week's scans went, so silence or a thin issue is explainable.
 const scans = (await readRunLogs(PATHS.runs)).filter((l) => l.kind === "scan" && isoWeek(new Date(l.startedAt)) === week);
@@ -58,7 +80,7 @@ const short = scans.filter((l) => l.quotas && !l.quotas.met).length;
 const weekTokens = scans.reduce((total, l) => addUsage(total, l.totals), ZERO_USAGE);
 const health = `${scans.length} scans · ${failed} failed · ${short} explore shortfall(s) · ${pool.length} passed the judge · ${carried.length} carried over · ${describeUsage(weekTokens)}`;
 
-let started = clock();
+started = clock();
 let intro = "Nothing cleared the bar this week. The scans ran, but the judge didn't pass anything worth your time.";
 if (picks.length) {
   const written = await writeIntro(picks);
@@ -66,7 +88,7 @@ if (picks.length) {
   recordPhase(log, { name: "intro", model: MODELS.weeklyIntro, startedAt: started, usage: written.usage }, clock());
 }
 
-const issue = { title: `harness-digest · ${week}`, intro, items: picks, health };
+const issue = { title: `harness-digest · ${week}`, intro, items: picks, bonus, health };
 await mkdir(issuesDir, { recursive: true });
 const issuePath = `${issuesDir}/${week}${dryRun ? "-dry-run" : ""}.md`;
 await writeFile(issuePath, renderMarkdown(issue), "utf8");
@@ -83,11 +105,11 @@ if (!dryRun) {
 
 // Mark the picks as featured, so they can't appear in a later issue.
 if (!dryRun) {
-  const pickedKeys = new Set(picks.map((p) => p.key));
+  const pickedKeys = new Set([...picks, ...bonus].map((p) => p.key));
   await saveSeen(SEEN_PATH, seen.map((e) => (pickedKeys.has(e.key) ? { ...e, status: "featured" as const } : e)));
 }
 
 finishRun(log, clock());
 const logPath = await writeRunLog(runsDir, log);
-console.log(`${dryRun ? "[dry run] " : ""}${issue.title}: ${picks.length} items from a pool of ${pool.length} (+${carried.length} carried over, ${picks.filter((p) => p.carriedOver).length} picked)\nissue: ${issuePath}\n${log.summary}\nlog: ${logPath}`);
+console.log(`${dryRun ? "[dry run] " : ""}${issue.title}: ${picks.length} items${bonus.length ? ` + ${bonus.length} bonus` : ""} from a pool of ${pool.length} (+${carried.length} carried over, ${picks.filter((p) => p.carriedOver).length} picked)\nissue: ${issuePath}\n${log.summary}\nlog: ${logPath}`);
 process.exitCode = log.errors.length ? 1 : 0;
