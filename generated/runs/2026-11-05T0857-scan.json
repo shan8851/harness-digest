@@ -1,0 +1,165 @@
+{
+  "summary": "scan · ok · 1m 45s · 13 kept of 31 found · 1.017M in (0.141M cached) · 0.022M out · 23 searches · 0 fetches · quotas met",
+  "id": "2026-11-05T0857-scan",
+  "kind": "scan",
+  "status": "ok",
+  "startedAt": "2026-11-05T08:57:37.855Z",
+  "finishedAt": "2026-11-05T08:59:23.216Z",
+  "lookbackFrom": "2026-11-02T08:54:12.890Z",
+  "quotas": {
+    "met": true,
+    "shortfalls": []
+  },
+  "counts": {
+    "fromSeeds": 16,
+    "fromExplore": 15,
+    "unfetchable": 2,
+    "stale": 5,
+    "judged": 24,
+    "rejected": 11,
+    "kept": 13,
+    "errors": 0,
+    "skippedForLimit": 0
+  },
+  "explore": {
+    "queriesByTheme": {
+      "harness-design": [
+        "tool design for coding agents lessons: fewer tools, better descriptions",
+        "SKILL.md progressive disclosure how I structure agent skills",
+        "agent loop structure plan execute verify harness github repo",
+        "context engineering coding agent compaction context rot practical tips",
+        "my agent harness setup subagents hooks skills walkthrough November 2026"
+      ],
+      "verification": [
+        "agent screenshots as proof UI changes verify before merge",
+        "\"definition of done\" AI agent claims done but didn't verify",
+        "LLM-as-judge eval pipeline for agents lessons learned dev.to",
+        "Claude Code hooks stop hook run tests block completion"
+      ],
+      "lighter-review": [
+        "spec-driven development agents small diffs review cheaper",
+        "AI code review agent second model reviews first, lessons learned",
+        "stacked PRs coding agents reviewer workload technique",
+        "turn review comments into lint rules for coding agents",
+        "agent PR review checklist risk-tiered human review verify intent dev.to November 2026"
+      ],
+      "non-engineers": [
+        "agent workflow for marketing team Claude skills campaign briefs guardrails",
+        "customer support ops agent runbook human approval evals non-technical team",
+        "product managers using coding agents PRD to prototype workflow",
+        "github repo agent skills for marketers sales ops HR templates",
+        "how we built an internal agent for sales team lessons what broke"
+      ],
+      "real-setups": [
+        "my AGENTS.md rewrite after agent kept breaking things, what I changed",
+        "dev.to my agentic coding workflow hooks verification loop what broke",
+        "how I built my personal agent harness: files, loop, failures, fixes",
+        "reddit ClaudeCode my setup subagents skills memory what stopped working"
+      ]
+    },
+    "retries": 0,
+    "weakestTheme": "non-engineers"
+  },
+  "totals": {
+    "inputTokens": 513022,
+    "outputTokens": 22120,
+    "cacheWriteTokens": 362409,
+    "cacheReadTokens": 141360,
+    "webSearches": 23,
+    "webFetches": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "phases": [
+    {
+      "summary": "seed sweep · code · 11s",
+      "name": "seed sweep",
+      "model": null,
+      "startedAt": "2026-11-05T08:57:37.870Z",
+      "durationSeconds": 10.6,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "16 candidates from 23/23 seeds"
+      ]
+    },
+    {
+      "summary": "explore · sonnet-5-5 · 17s · 0.504M in (0.141M cached) · 0.005M out · 23 searches · 0 fetches",
+      "name": "explore",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-11-05T08:57:48.465Z",
+      "durationSeconds": 17.1,
+      "usage": {
+        "inputTokens": 34,
+        "outputTokens": 5449,
+        "cacheWriteTokens": 362409,
+        "cacheReadTokens": 141360,
+        "webSearches": 23,
+        "webFetches": 0
+      },
+      "notes": [
+        "0 retries",
+        "lighter-review: 1 submitted URL(s) weren't in any search result; discarded"
+      ]
+    },
+    {
+      "summary": "summarise · sonnet-5-5 · 1m 18s · 0.255M in · 0.011M out · 0 searches · 0 fetches",
+      "name": "summarise",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-11-05T08:58:05.577Z",
+      "durationSeconds": 77.6,
+      "usage": {
+        "inputTokens": 254705,
+        "outputTokens": 10961,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "https://latent.space/p/building-ai-for-lawyers-jacob-lauritzen-cto-of-legora/: page text truncated"
+      ]
+    },
+    {
+      "summary": "judge · opus-5-5 · 1m 18s · 0.258M in · 0.006M out · 0 searches · 0 fetches",
+      "name": "judge",
+      "model": "claude-opus-5-5",
+      "startedAt": "2026-11-05T08:58:05.577Z",
+      "durationSeconds": 77.6,
+      "usage": {
+        "inputTokens": 258283,
+        "outputTokens": 5710,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": []
+    },
+    {
+      "summary": "store · code · 0s",
+      "name": "store",
+      "model": null,
+      "startedAt": "2026-11-05T08:59:23.214Z",
+      "durationSeconds": 0,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "31 added to memory",
+        "13 added to the 2026-W45 pool as they passed (10 from explore)"
+      ]
+    }
+  ]
+}
