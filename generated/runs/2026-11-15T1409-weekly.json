@@ -1,0 +1,79 @@
+{
+  "summary": "weekly · ok · 5s · 0.004M in · 0.000M out · 0 searches · 0 fetches",
+  "id": "2026-11-15T1409-weekly",
+  "kind": "weekly",
+  "status": "ok",
+  "startedAt": "2026-11-15T14:09:48.344Z",
+  "finishedAt": "2026-11-15T14:09:53.312Z",
+  "lookbackFrom": null,
+  "quotas": null,
+  "counts": null,
+  "explore": null,
+  "totals": {
+    "inputTokens": 3947,
+    "outputTokens": 276,
+    "cacheWriteTokens": 0,
+    "cacheReadTokens": 0,
+    "webSearches": 0,
+    "webFetches": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "phases": [
+    {
+      "summary": "same idea · sonnet-5-5 · 2s · 0.003M in · 0.000M out · 0 searches · 0 fetches",
+      "name": "same idea",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-11-15T14:09:48.349Z",
+      "durationSeconds": 2.4,
+      "usage": {
+        "inputTokens": 3252,
+        "outputTokens": 128,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "group: Both teach adding a Stop hook that exits 2 on failing typecheck/lint/tests so the agent cannot finish until checks pass.",
+        "group: Both have a different-model-family agent independently check another agent's work, which is the same kind of resource as a cross-vendor reviewer charter.",
+        "would drop (log mode) dev.to/jsmanifest/claude-code-diff-verification-in-2026-how-to-make-your-agent-assert-its-own-edits-did-not-break-bci (same idea as dev.to/rawveg/your-coding-agent-thinks-it-has-finished-make-it-prove-it-2bg)",
+        "would drop (log mode) dev.to/avivl/every-pr-gets-an-agent-review-before-a-human-sees-it-440h (same idea as code.minimax.io/docs/techblog/coding-agent-workflow-and-skills)"
+      ]
+    },
+    {
+      "summary": "intro · sonnet-5-5 · 2s · 0.001M in · 0.000M out · 0 searches · 0 fetches",
+      "name": "intro",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-11-15T14:09:50.725Z",
+      "durationSeconds": 2.3,
+      "usage": {
+        "inputTokens": 695,
+        "outputTokens": 148,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": []
+    },
+    {
+      "summary": "email · code · 0s",
+      "name": "email",
+      "model": null,
+      "startedAt": "2026-11-15T14:09:53.247Z",
+      "durationSeconds": 0.1,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "sent (Resend id 01a1df8b-0885-75be-b18d-afdfc94ee30c)"
+      ]
+    }
+  ]
+}
