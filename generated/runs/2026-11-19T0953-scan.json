@@ -1,0 +1,173 @@
+{
+  "summary": "scan · ok · 1m 46s · 14 kept of 44 found · 1.449M in (0.243M cached) · 0.034M out · 24 searches · 0 fetches · quotas met",
+  "id": "2026-11-19T0953-scan",
+  "kind": "scan",
+  "status": "ok",
+  "startedAt": "2026-11-19T09:53:30.895Z",
+  "finishedAt": "2026-11-19T09:55:16.620Z",
+  "lookbackFrom": "2026-11-16T08:59:58.330Z",
+  "quotas": {
+    "met": true,
+    "shortfalls": []
+  },
+  "counts": {
+    "fromSeeds": 29,
+    "fromExplore": 15,
+    "unfetchable": 1,
+    "stale": 9,
+    "judged": 34,
+    "rejected": 20,
+    "kept": 14,
+    "errors": 0,
+    "skippedForLimit": 0
+  },
+  "explore": {
+    "queriesByTheme": {
+      "harness-design": [
+        "SKILL.md progressive disclosure writing agent skills lessons learned",
+        "context engineering coding agent compaction tool design tool descriptions what I changed",
+        "my agent harness loop structure plan execute verify walkthrough github repo",
+        "Hacker News Show HN agent harness skills subagents hooks November 2026",
+        "tool design for agents lessons: fewer tools, better descriptions, error messages blog November 2026"
+      ],
+      "verification": [
+        "agent proof of work screenshots evidence pull request verification",
+        "eval harness for coding agents lessons learned blog November 2026",
+        "agent-written tests mutation testing verify AI generated code",
+        "Stop hook verify agent output before finishing Claude Code hooks tests"
+      ],
+      "lighter-review": [
+        "spec-driven development agents small diffs easier review November 2026",
+        "code review bottleneck AI agents guardrails pre-commit hooks lint rules agent output",
+        "stacked PRs agent-written code review workflow reviewer agent",
+        "Hacker News Show HN code review agent CLAUDE.md review rules repo",
+        "agent-written PRs review cheaper: risk tiers, auto-merge policy, reviewer agent, this week"
+      ],
+      "non-engineers": [
+        "customer support team AI agent playbook guardrails escalation rules how we built",
+        "Claude Code for marketing team workflow skills campaign reporting",
+        "sales ops agent workflow CRM human approval step lessons learned",
+        "Claude Cowork skills non-developers team workflow templates",
+        "product manager agent workflow PRD skill evals non-engineers"
+      ],
+      "real-setups": [
+        "my AGENTS.md walkthrough what I removed after agent kept breaking",
+        "dev.to my Claude Code setup subagents hooks what went wrong",
+        "agent harness postmortem: agent claimed done but tests failed, how I fixed the loop",
+        "open source repo my coding agent harness skills hooks verification week",
+        "what I learned running AI agents on my own project this week, setup and mistakes"
+      ]
+    },
+    "retries": 0,
+    "weakestTheme": "non-engineers"
+  },
+  "totals": {
+    "inputTokens": 801718,
+    "outputTokens": 33640,
+    "cacheWriteTokens": 405092,
+    "cacheReadTokens": 242565,
+    "webSearches": 24,
+    "webFetches": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "phases": [
+    {
+      "summary": "seed sweep · code · 5s",
+      "name": "seed sweep",
+      "model": null,
+      "startedAt": "2026-11-19T09:53:30.911Z",
+      "durationSeconds": 4.6,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "29 candidates from 23/23 seeds"
+      ]
+    },
+    {
+      "summary": "explore · sonnet-5-5 · 15s · 0.648M in (0.243M cached) · 0.006M out · 24 searches · 0 fetches",
+      "name": "explore",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-11-19T09:53:35.490Z",
+      "durationSeconds": 15.1,
+      "usage": {
+        "inputTokens": 36,
+        "outputTokens": 5967,
+        "cacheWriteTokens": 405092,
+        "cacheReadTokens": 242565,
+        "webSearches": 24,
+        "webFetches": 0
+      },
+      "notes": [
+        "0 retries",
+        "verification: no submission; using every search result",
+        "real-setups: 1 submitted URL(s) weren't in any search result; discarded"
+      ]
+    },
+    {
+      "summary": "summarise · sonnet-5-5 · 1m 26s · 0.441M in · 0.018M out · 0 searches · 0 fetches",
+      "name": "summarise",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-11-19T09:53:50.596Z",
+      "durationSeconds": 86,
+      "usage": {
+        "inputTokens": 441383,
+        "outputTokens": 18308,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "https://blog.cloudflare.com/open-clairic/: revised for quote is 28 words, max 25",
+        "https://blog.cloudflare.com/open-clairic/: revised for quote is 26 words, max 25",
+        "https://engineering.fb.com/2026/11/18/ml-applications/design-once-deploy-at-scale-template-driven-ml-ecosystem/: revised for quote is 28 words, max 25",
+        "https://www.microsoft.com/en-us/research/blog/tokeneconomizer-learning-from-experience-to-make-ai-coding-agents-more-efficient/: revised for \"go deeper if\" is 26 words, max 25",
+        "https://simonwillison.net/2026/Nov/17/datasette-lite/: revised for quote is 26 words, max 25",
+        "https://martinfowler.com/articles/data-contracts.html: revised for idea is 36 words, max 35",
+        "https://latent.space/p/cloudflare/: revised for \"go deeper if\" is 27 words, max 25"
+      ]
+    },
+    {
+      "summary": "judge · opus-5-5 · 1m 26s · 0.360M in · 0.009M out · 0 searches · 0 fetches",
+      "name": "judge",
+      "model": "claude-opus-5-5",
+      "startedAt": "2026-11-19T09:53:50.596Z",
+      "durationSeconds": 86,
+      "usage": {
+        "inputTokens": 360299,
+        "outputTokens": 9365,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": []
+    },
+    {
+      "summary": "store · code · 0s",
+      "name": "store",
+      "model": null,
+      "startedAt": "2026-11-19T09:55:16.618Z",
+      "durationSeconds": 0,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "44 added to memory",
+        "14 added to the 2026-W47 pool as they passed (9 from explore)"
+      ]
+    }
+  ]
+}
