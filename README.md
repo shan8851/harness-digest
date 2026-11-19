@@ -2,6 +2,8 @@
 
 A small agent harness that reads the internet twice a week so I don't have to.
 
+**Read the issues:** [shan8851.com/digest](https://shan8851.com/digest), every weekly issue with the judge's verdicts.
+
 Every Monday and Thursday it searches for instructive writing, repos and threads on **agentic engineering**: how people shape AI agents to produce solid, verified work. A Sonnet model finds and summarises; an Opus model judges whether each item has a real teaching moment; plain code checks the work. Once a week the best five to seven items land in my inbox and in [`issues/`](issues/).
 
 The harness is also the practice: it's built from the patterns it reads about. Fixed phases, quotas enforced in code rather than in prompts, a separate judge, a verifier that checks quotes against the source, self-pruning memory, and a readable log for every run.
