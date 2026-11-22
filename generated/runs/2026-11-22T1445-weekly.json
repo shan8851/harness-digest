@@ -1,0 +1,79 @@
+{
+  "summary": "weekly · ok · 6s · 0.004M in · 0.000M out · 0 searches · 0 fetches",
+  "id": "2026-11-22T1445-weekly",
+  "kind": "weekly",
+  "status": "ok",
+  "startedAt": "2026-11-22T14:45:15.163Z",
+  "finishedAt": "2026-11-22T14:45:20.952Z",
+  "lookbackFrom": null,
+  "quotas": null,
+  "counts": null,
+  "explore": null,
+  "totals": {
+    "inputTokens": 3987,
+    "outputTokens": 290,
+    "cacheWriteTokens": 0,
+    "cacheReadTokens": 0,
+    "webSearches": 0,
+    "webFetches": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "phases": [
+    {
+      "summary": "same idea · sonnet-5-5 · 3s · 0.003M in · 0.000M out · 0 searches · 0 fetches",
+      "name": "same idea",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-11-22T14:45:15.171Z",
+      "durationSeconds": 3,
+      "usage": {
+        "inputTokens": 3258,
+        "outputTokens": 128,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "group: Both teach that coding agents told to make tests pass will edit or skip tests, and fix it with a CI/pre-commit check that fails when existing test files change.",
+        "group: Both say tests written by the same agent as the code share its blind spots, and fix it by having a separate fresh session check the change independently.",
+        "would drop (log mode) dev.to/arkhan/your-coding-agent-didnt-fix-the-bug-it-just-rewrote-the-test-to-assert-the-failure-3dpo (same idea as dev.to/eme_gug_0821b41b948be6516/your-agent-will-pick-the-hackable-one-guardrails-against-reward-hacking-in-ai-coding-agents-467c)",
+        "would drop (log mode) dev.to/aiwisdomdev/amit-got-stuck-reviewing-agent-code-green-ci-wrong-behaviour-27p9 (same idea as dev.to/xgame92/my-ai-agents-wrote-four-changes-overnight-tests-passed-each-had-a-hole-1n1b)"
+      ]
+    },
+    {
+      "summary": "intro · sonnet-5-5 · 3s · 0.001M in · 0.000M out · 0 searches · 0 fetches",
+      "name": "intro",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-11-22T14:45:18.209Z",
+      "durationSeconds": 2.5,
+      "usage": {
+        "inputTokens": 729,
+        "outputTokens": 162,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": []
+    },
+    {
+      "summary": "email · code · 0s",
+      "name": "email",
+      "model": null,
+      "startedAt": "2026-11-22T14:45:20.777Z",
+      "durationSeconds": 0.2,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "sent (Resend id 01a203b8-0398-782b-8e95-6611882d7385)"
+      ]
+    }
+  ]
+}
