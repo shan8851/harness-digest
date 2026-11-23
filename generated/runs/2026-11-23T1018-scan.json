@@ -1,0 +1,172 @@
+{
+  "summary": "scan · ok · 1m 32s · 11 kept of 42 found · 1.281M in (0.295M cached) · 0.027M out · 25 searches · 0 fetches · quotas met",
+  "id": "2026-11-23T1018-scan",
+  "kind": "scan",
+  "status": "ok",
+  "startedAt": "2026-11-23T10:18:03.962Z",
+  "finishedAt": "2026-11-23T10:19:35.765Z",
+  "lookbackFrom": "2026-11-19T09:53:30.895Z",
+  "quotas": {
+    "met": true,
+    "shortfalls": []
+  },
+  "counts": {
+    "fromSeeds": 27,
+    "fromExplore": 15,
+    "unfetchable": 2,
+    "stale": 14,
+    "judged": 26,
+    "rejected": 15,
+    "kept": 11,
+    "errors": 0,
+    "skippedForLimit": 0
+  },
+  "explore": {
+    "queriesByTheme": {
+      "harness-design": [
+        "Claude Code hooks subagents setup what broke and what I changed",
+        "AGENTS.md CLAUDE.md instruction file pruning rules agent memory files",
+        "subagent orchestration pattern context isolation coding agents dev.to",
+        "agent memory design files across sessions harness open source repo",
+        "agent skills hooks harness lessons this week November 2026 blog"
+      ],
+      "verification": [
+        "definition of done for AI coding agents acceptance checks before merge",
+        "agent self-verification browser screenshot Playwright loop my setup",
+        "CI gate for AI agent pull requests github repo verification skill",
+        "agent lied said tests pass; how I force evidence of work",
+        "eval for AI agent regression suite grader lessons learned this week"
+      ],
+      "lighter-review": [
+        "reviewing AI-generated pull requests checklist evidence tests screenshots reviewer",
+        "write the spec before the agent, review the plan instead of the diff",
+        "second agent code review prompt false positives dev.to agent PR",
+        "limiting PR size for coding agents mechanical checks architecture tests CI gate",
+        "agent pull request review workflow lessons this week November 2026 reviewer agent diff size"
+      ],
+      "non-engineers": [
+        "AI agent workflow for design team handoff constraints specific outputs",
+        "finance ops accounting AI agent workflow guardrails verification November 2026",
+        "content marketing agent skills brand voice checklist repo",
+        "non-technical team using coding agents operations lessons what broke",
+        "HR recruiting legal team AI agent workflow human review template"
+      ],
+      "real-setups": [
+        "my agent harness setup CLAUDE.md hooks lessons November 2026",
+        "how I run coding agents in production: my workflow, what broke, what I changed",
+        "Hacker News Show HN my agent loop harness verification what failed",
+        "reddit ClaudeCode my workflow after months: specs, subagents, review agent, rules that broke",
+        "my agent setup what I changed after it failed, skills hooks review loop, posted this week"
+      ]
+    },
+    "retries": 0,
+    "weakestTheme": "non-engineers"
+  },
+  "totals": {
+    "inputTokens": 560247,
+    "outputTokens": 27169,
+    "cacheWriteTokens": 425817,
+    "cacheReadTokens": 295380,
+    "webSearches": 25,
+    "webFetches": 0
+  },
+  "warnings": [],
+  "errors": [],
+  "phases": [
+    {
+      "summary": "seed sweep · code · 4s",
+      "name": "seed sweep",
+      "model": null,
+      "startedAt": "2026-11-23T10:18:03.978Z",
+      "durationSeconds": 3.7,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "27 candidates from 23/23 seeds"
+      ]
+    },
+    {
+      "summary": "explore · sonnet-5-5 · 16s · 0.721M in (0.295M cached) · 0.006M out · 25 searches · 0 fetches",
+      "name": "explore",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-11-23T10:18:07.660Z",
+      "durationSeconds": 16.3,
+      "usage": {
+        "inputTokens": 38,
+        "outputTokens": 6492,
+        "cacheWriteTokens": 425817,
+        "cacheReadTokens": 295380,
+        "webSearches": 25,
+        "webFetches": 0
+      },
+      "notes": [
+        "0 retries",
+        "lighter-review: 3 submitted URL(s) weren't in any search result; discarded",
+        "non-engineers: 1 submitted URL(s) weren't in any search result; discarded"
+      ]
+    },
+    {
+      "summary": "summarise · sonnet-5-5 · 1m 12s · 0.298M in · 0.014M out · 0 searches · 0 fetches",
+      "name": "summarise",
+      "model": "claude-sonnet-5-5",
+      "startedAt": "2026-11-23T10:18:23.928Z",
+      "durationSeconds": 71.8,
+      "usage": {
+        "inputTokens": 297578,
+        "outputTokens": 13688,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "https://developers.googleblog.com/check-what-your-ai-agents-do-before-they-do-it-with-semantic-governance-policies/: revised for \"go deeper if\" is 26 words, max 25",
+        "https://developers.googleblog.com/multi-turn-agentic-reinforcement-learning-with-tunix-and-gemma-4-on-google-tpus/: revised for idea is 38 words, max 35",
+        "https://latent.space/p/linear-scaling/: page text truncated",
+        "https://github.com/aallbrig/treemand/issues/248: revised for idea is 36 words, max 35",
+        "https://github.com/chight1/pr-verify: revised for idea is 36 words, max 35"
+      ]
+    },
+    {
+      "summary": "judge · opus-5-5 · 1m 12s · 0.263M in · 0.007M out · 0 searches · 0 fetches",
+      "name": "judge",
+      "model": "claude-opus-5-5",
+      "startedAt": "2026-11-23T10:18:23.928Z",
+      "durationSeconds": 71.8,
+      "usage": {
+        "inputTokens": 262631,
+        "outputTokens": 6989,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": []
+    },
+    {
+      "summary": "store · code · 0s",
+      "name": "store",
+      "model": null,
+      "startedAt": "2026-11-23T10:19:35.764Z",
+      "durationSeconds": 0,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cacheWriteTokens": 0,
+        "cacheReadTokens": 0,
+        "webSearches": 0,
+        "webFetches": 0
+      },
+      "notes": [
+        "42 added to memory",
+        "11 added to the 2026-W48 pool as they passed (8 from explore)"
+      ]
+    }
+  ]
+}
