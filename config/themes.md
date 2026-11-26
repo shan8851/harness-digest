@@ -33,7 +33,7 @@ Pass only if the item contains a **concrete, transferable technique** that a wor
 
 - **9–10:** a technique I'd want to try immediately, explained with real evidence (code, a repo, a before and after).
 - **7–8:** a clear, useful technique; less evidence or narrower use.
-- **5–6:** passes the test, but thin. Fine for a week with little else.
+- **5–6:** passes the test, but thin. Fine for a month with little else.
 - **Below 5:** fail.
 
 Score the technique only. Readability is a separate field (below), and code combines the two.

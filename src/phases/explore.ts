@@ -112,7 +112,7 @@ export async function exploreTheme(request: ThemeRequest, callModel: CallModel =
       // context on every step after. With caching on, web search caches as it
       // goes, so those re-reads bill as cache reads. This was half a scan's input.
       cache_control: { type: "ephemeral" },
-      system: ["You search the web for a weekly digest about agentic engineering. Judge what's worth submitting with the rubric below.", "", rubric].join("\n"),
+      system: ["You search the web for a monthly digest about agentic engineering. Judge what's worth submitting with the rubric below.", "", rubric].join("\n"),
       tools: [
         { type: "web_search_20250305", name: "web_search", max_uses: EXPLORE.maxSearchesPerCall, blocked_domains: [...BLOCKED_HOSTS] },
         SUBMIT_TOOL,

@@ -11,8 +11,9 @@ The plan is to let it run for a few weeks before tuning anything, so changes are
 | **Judge cost** | `EFFORT.judge` | "high" → "medium" for a cheaper Opus. Check it against a handful of known-good and known-bad items first (Hamel's decision-model evals post is relevant). |
 | **Seed list** | `config/sources.json` | Prune seeds that only produce rejects; add ones explore keeps finding. Source promotion and demotion, once there's data. |
 | **Explore** | `EXPLORE`, `EXPLORE_QUOTAS` | Searches per theme (5), the candidate cap (15), and which theme gets pushed. |
-| **Carry-over** | `WEEKLY.carryOverMinScore`, `carryOverPenalty` | Built 2026-10-20 at 8+ with a 1-point handicap. In week one only 1 of 13 unpicked items qualified (most scored 7); lower to 7 if good items keep slipping through. |
-| **Near-duplicate topics** | `src/lib/pool.ts` (`pickIssue`) | One issue sent two harness-template repos; the eval found several near-identical "agent PR evidence" posts. Dedupe is by URL and title only. When two picks cover the same idea, send the better one. |
+| **Near-duplicate topics** | `ISSUE.sameIdeaMode`, `sameIdeaWindow` | Built as a log-only check in November; switched to dropping with the move to monthly (four of five logged groups were real duplicates). Check each issue's run log for groups that only share a theme. |
+| **Site caps** | `ISSUE.siteCaps` | dev.to is capped at 2 per issue: it was over a third of passes in W45-W47, mostly the same few ideas. Widen or remove if the monthly picks look thin. |
+| **Pass rate** | `ITEMS.minScore`, `config/themes.md` | About 45% of judged items passed in November, against a 20-30% target. With ~80 passes a month for ten slots, the bar can rise. |
 | **Podcasts and video** | `config/themes.md`, issue render | Transcripts are hard to read, but some episodes are worth a listen. Decided 3 Nov: a separate "bonus listen" section with a higher bar (8+); below that, drop them. Video stays blocked at fetch (no transcript). |
 | **Freshness and caps** | `ITEMS.maxAgeDays`, `SEED_SWEEP.maxItemsPerSeed` | The 7-day window and 10 candidates per seed. |
 
@@ -23,7 +24,7 @@ The plan is to let it run for a few weeks before tuning anything, so changes are
 - **Cost per scan.** The first two full scans cost $4.30 and $4.88, with empty memory and the full 7-day lookback. Normal scans cover 3–4 days and skip what's in memory; check the Console after the first few.
 - **Index seeds walk back through their archives.** Anthropic, Cursor and Google Developers (an undated feed) offer their next 10 older links each scan until memory covers them. That's free while the pages carry dates, since stale pages are dropped before any model call. Watch for undated ones reaching the summariser.
 - **Structured-output parse failures.** Two items failed to parse in the crashed first scan and didn't recur. They're logged as warnings and retried next scan; look into it if they come back.
-- **Pass rate.** The first scan kept 20 of 48 judged. If weekly passes drop below about 10, widen explore before lowering the bar.
+- **Pass rate.** The first scan kept 20 of 48 judged. If a month's passes drop below about 40, widen explore before lowering the bar.
 
 ## Later
 

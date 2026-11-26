@@ -1,20 +1,22 @@
-// The weekly issue, run on Sunday: picks the best of the week's pool, writes
-// issues/<week>.md, emails it, and marks the picks as featured in memory.
+// The monthly issue, run on the 1st: picks the best of last month's pool,
+// writes issues/<YYYY-MM>.md, emails it, and marks the picks as featured in memory.
 //
-//   pnpm weekly             the real thing
-//   pnpm weekly --dry-run   builds the issue without side effects: no email,
-//                           nothing marked featured, and the issue and run log
-//                           go to generated/local/ instead of issues/ and runs/
-//   pnpm weekly --dry-run --as-of 2026-10-26
-//                           the same, as if it were that date (for testing carry-over)
+//   pnpm monthly             the real thing
+//   pnpm monthly --dry-run   builds the issue without side effects: no email,
+//                            nothing marked featured, and the issue and run log
+//                            go to generated/local/ instead of issues/ and runs/
+//   pnpm monthly --dry-run --as-of 2026-12-01
+//                            the same, as if it were that date (any day in a
+//                            month builds the issue for the month before)
 
 import { mkdir, writeFile } from "node:fs/promises";
-import { MODELS, PATHS, WEEKLY } from "../config/settings.js";
+import { ISSUE, MODELS, PATHS } from "../config/settings.js";
 import { renderHtml, renderMarkdown, renderText } from "./issue/render.js";
 import { loadSeen, saveSeen } from "./lib/dedupe.js";
 import { sendEmail } from "./lib/email.js";
 import { issueExists } from "./lib/issues.js";
-import { carryOver, dropSameIdea, isPodcast, isoWeek, loadPool, pickBonus, pickIssue, rankPool } from "./lib/pool.js";
+import { monthKey, monthName, previousMonth } from "./lib/months.js";
+import { dropSameIdea, isPodcast, loadPool, pickBonus, pickIssue, rankPool } from "./lib/pool.js";
 import { finishRun, newRunLog, readRunLogs, recordPhase, writeRunLog } from "./lib/runLog.js";
 import { addUsage, describeUsage, ZERO_USAGE } from "./lib/usage.js";
 import { writeIntro } from "./phases/intro.js";
@@ -31,37 +33,35 @@ const now = asOfIndex === -1 ? new Date() : new Date(process.argv[asOfIndex + 1]
 // The current time on the run's own clock, so durations stay right under --as-of.
 const realStart = Date.now();
 const clock = () => new Date(now.getTime() + (Date.now() - realStart));
-const week = isoWeek(now);
-const log = newRunLog("weekly", now);
+// Sent on the 1st, so it covers the month that just ended.
+const month = previousMonth(now);
+const log = newRunLog("monthly", now);
 
-// One issue per week. If this week's has already gone out, don't send a second
-// one or overwrite the archive; the week's strong passes carry over instead.
-if (!dryRun && (await issueExists(PATHS.issues, week))) {
-  log.warnings.push(`the ${week} issue was already sent; skipped (strong passes carry over to next week)`);
+// One issue per month. If this month's has already gone out, don't send a
+// second one or overwrite the archive.
+if (!dryRun && (await issueExists(PATHS.issues, month))) {
+  log.warnings.push(`the ${month} issue was already sent; skipped`);
   finishRun(log, clock());
   const logPath = await writeRunLog(runsDir, log);
-  console.log(`${week} issue already sent; nothing to do.\n${log.summary}\nlog: ${logPath}`);
+  console.log(`${month} issue already sent; nothing to do.\n${log.summary}\nlog: ${logPath}`);
   process.exit(0);
 }
 
 const seen = await loadSeen(SEEN_PATH);
 const featured = new Set(seen.filter((e) => e.status === "featured").map((e) => e.key));
-const pool = (await loadPool(PATHS.pool, week)).filter((e) => !featured.has(e.key));
-// Last week's strong unpicked items get one more chance (see WEEKLY.carryOverMinScore).
-const lastWeek = isoWeek(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000));
-const carried = carryOver(await loadPool(PATHS.pool, lastWeek), featured);
+const pool = (await loadPool(PATHS.pool, month)).filter((e) => !featured.has(e.key));
 
 // One card per idea: the top of the ranking goes to a small model that groups
 // near-duplicates, and code keeps the best of each group. If the check fails,
 // the issue goes out without it (title matching in pickIssue still applies).
-let candidates = [...pool, ...carried];
+let candidates = pool;
 let started = clock();
 try {
-  const top = rankPool(candidates.filter((e) => !isPodcast(e))).slice(0, WEEKLY.sameIdeaWindow);
+  const top = rankPool(candidates.filter((e) => !isPodcast(e))).slice(0, ISSUE.sameIdeaWindow);
   const { groups, reasons, usage } = await groupSameIdea(top);
   const { kept, dropped } = dropSameIdea(candidates, groups);
-  if (WEEKLY.sameIdeaMode === "drop") candidates = kept;
-  const verb = WEEKLY.sameIdeaMode === "drop" ? "dropped" : "would drop (log mode)";
+  if (ISSUE.sameIdeaMode === "drop") candidates = kept;
+  const verb = ISSUE.sameIdeaMode === "drop" ? "dropped" : "would drop (log mode)";
   recordPhase(
     log,
     { name: "same idea", model: MODELS.sameIdea, startedAt: started, usage, notes: [...reasons.map((r) => `group: ${r}`), ...dropped.map((d) => `${verb} ${d.key} (same idea as ${d.keptInstead})`)] },
@@ -73,24 +73,28 @@ try {
 const picks = pickIssue(candidates);
 const bonus = pickBonus(candidates);
 
-// The health line: how the week's scans went, so silence or a thin issue is explainable.
-const scans = (await readRunLogs(PATHS.runs)).filter((l) => l.kind === "scan" && isoWeek(new Date(l.startedAt)) === week);
+// The health line: how the month's scans went, so silence or a thin issue is explainable.
+const logs = await readRunLogs(PATHS.runs);
+// November 2026 started weekly: its early scans fed weekly issues and were
+// counted there, so only scans after the last weekly issue count here.
+const lastWeekly = logs.filter((l) => l.kind === "weekly").at(-1)?.startedAt ?? "";
+const scans = logs.filter((l) => l.kind === "scan" && monthKey(new Date(l.startedAt)) === month && l.startedAt > lastWeekly);
 const failed = scans.filter((l) => l.status === "failed").length;
 const short = scans.filter((l) => l.quotas && !l.quotas.met).length;
-const weekTokens = scans.reduce((total, l) => addUsage(total, l.totals), ZERO_USAGE);
-const health = `${scans.length} scans · ${failed} failed · ${short} explore shortfall(s) · ${pool.length} passed the judge · ${carried.length} carried over · ${describeUsage(weekTokens)}`;
+const monthTokens = scans.reduce((total, l) => addUsage(total, l.totals), ZERO_USAGE);
+const health = `${scans.length} scans · ${failed} failed · ${short} explore shortfall(s) · ${pool.length} passed the judge · ${describeUsage(monthTokens)}`;
 
 started = clock();
-let intro = "Nothing cleared the bar this week. The scans ran, but the judge didn't pass anything worth your time.";
+let intro = "Nothing cleared the bar this month. The scans ran, but the judge didn't pass anything worth your time.";
 if (picks.length) {
   const written = await writeIntro(picks);
   intro = written.intro;
-  recordPhase(log, { name: "intro", model: MODELS.weeklyIntro, startedAt: started, usage: written.usage }, clock());
+  recordPhase(log, { name: "intro", model: MODELS.issueIntro, startedAt: started, usage: written.usage }, clock());
 }
 
-const issue = { title: `harness-digest · ${week}`, intro, items: picks, bonus, health };
+const issue = { title: `harness-digest · ${monthName(month)}`, intro, items: picks, bonus, health };
 await mkdir(issuesDir, { recursive: true });
-const issuePath = `${issuesDir}/${week}${dryRun ? "-dry-run" : ""}.md`;
+const issuePath = `${issuesDir}/${month}${dryRun ? "-dry-run" : ""}.md`;
 await writeFile(issuePath, renderMarkdown(issue), "utf8");
 
 started = clock();
@@ -111,5 +115,5 @@ if (!dryRun) {
 
 finishRun(log, clock());
 const logPath = await writeRunLog(runsDir, log);
-console.log(`${dryRun ? "[dry run] " : ""}${issue.title}: ${picks.length} items${bonus.length ? ` + ${bonus.length} bonus` : ""} from a pool of ${pool.length} (+${carried.length} carried over, ${picks.filter((p) => p.carriedOver).length} picked)\nissue: ${issuePath}\n${log.summary}\nlog: ${logPath}`);
+console.log(`${dryRun ? "[dry run] " : ""}${issue.title}: ${picks.length} items${bonus.length ? ` + ${bonus.length} bonus` : ""} from a pool of ${pool.length}\nissue: ${issuePath}\n${log.summary}\nlog: ${logPath}`);
 process.exitCode = log.errors.length ? 1 : 0;

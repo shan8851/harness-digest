@@ -65,7 +65,7 @@ export async function summarise(page: SuccessfulPage, feedback?: CardFeedback): 
     // only pays back on revision passes, and the 2026-10-26 scan had none
     // (165k written, 0 read).
     system: [
-      "You write cards for a weekly digest about agentic engineering. You summarise one page at a time.",
+      "You write cards for a monthly digest about agentic engineering. You summarise one page at a time.",
       "Follow the writing rules in the rubric below exactly. The quote must appear verbatim in the page text, or the card is thrown away.",
       LIMITS,
       "",

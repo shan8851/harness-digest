@@ -45,8 +45,8 @@ describe("verifyItem (does the item make the issue?)", () => {
     ]);
   });
 
-  it("drops dated items older than a week, unless the age check is off", () => {
-    expect(verifyItem({ summary, verdict, pageText, publishedDate: "2026-10-10" }, options)).toEqual(["published 10 days ago, max 7"]);
+  it("drops dated items older than the freshness window, unless the age check is off", () => {
+    expect(verifyItem({ summary, verdict, pageText, publishedDate: "2026-10-10" }, options)).toEqual(["published 10 days ago, max 8"]);
     expect(verifyItem({ summary, verdict, pageText, publishedDate: "2026-10-10" }, { ...options, checkAge: false })).toEqual([]);
   });
 

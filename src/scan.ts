@@ -1,15 +1,16 @@
-// A scan: the whole find-and-judge pipeline, run Monday and Thursday.
+// A scan: the whole find-and-judge pipeline, run every Monday.
 //
 //   seed sweep → explore → for each candidate: fetch → freshness → summarise → judge → verify
-//   then: memory, the week's pool and the run log (all under generated/; see PATHS)
+//   then: memory, the month's pool and the run log (all under generated/; see PATHS)
 //
-// No email: the weekly issue (src/weekly.ts) picks from the pool on Sunday.
+// No email: the monthly issue (src/monthly.ts) picks from the pool on the 1st.
 //
 //   pnpm scan
 
 import { MODELS, PATHS, RUN_LIMITS, SCAN } from "../config/settings.js";
 import { loadSeen, pruneSeen, saveSeen, type SeenEntry } from "./lib/dedupe.js";
-import { appendPool, fromExplore, isoWeek, loadPool, weakestTheme } from "./lib/pool.js";
+import { monthKey } from "./lib/months.js";
+import { appendPool, fromExplore, loadPool, weakestTheme } from "./lib/pool.js";
 import { finishRun, lookbackFrom, newRunLog, readRunLogs, recordPhase, writeRunLog, type ScanCounts } from "./lib/runLog.js";
 import { loadSeeds } from "./lib/sources.js";
 import { addUsage, describeUsage, totalTokens, ZERO_USAGE } from "./lib/usage.js";
@@ -29,12 +30,12 @@ const since = lookbackFrom(logs, now);
 log.lookbackFrom = since.toISOString();
 
 const seen = pruneSeen(await loadSeen(SEEN_PATH), now);
-const week = isoWeek(now);
-const pool = await loadPool(POOL_DIR, week);
+const month = monthKey(now);
+const pool = await loadPool(POOL_DIR, month);
 const weakest = weakestTheme(pool);
 const previousScan = logs.filter((l) => l.kind === "scan").at(-1);
 const { seeds, seedSources } = await loadSeeds();
-console.log(`Scan ${log.id}: looking back to ${log.lookbackFrom} · ${seen.length} links in memory · weakest theme this week: ${weakest}\n`);
+console.log(`Scan ${log.id}: looking back to ${log.lookbackFrom} · ${seen.length} links in memory · weakest theme this month: ${weakest}\n`);
 
 // 1. Seed sweep: free.
 let started = new Date();
@@ -86,11 +87,11 @@ const results = await mapLimited(candidates, SCAN.concurrency, async (candidate)
   tokensSoFar += totalTokens(result.summariseUsage) + totalTokens(result.judgeUsage);
   // Save each pass straight away: the cards are the expensive part.
   if (result.item) {
-    await appendPool(POOL_DIR, week, [{ ...result.item, key: candidate.key, foundBy: candidate.foundBy, source: candidate.source, scannedAt: now.toISOString() }]);
+    await appendPool(POOL_DIR, month, [{ ...result.item, key: candidate.key, foundBy: candidate.foundBy, source: candidate.source, scannedAt: now.toISOString() }]);
   }
   // Every verdict, pass or fail, for the judge eval (evals/judge). Paid for, so saved straight away too.
   if (result.verdict && (result.status === "kept" || result.status === "rejected")) {
-    await appendVerdicts(PATHS.verdicts, week, [
+    await appendVerdicts(PATHS.verdicts, month, [
       { key: candidate.key, url: candidate.url, title: result.title, status: result.status, verdict: result.verdict, problems: result.problems, scannedAt: now.toISOString() },
     ]);
   }
@@ -111,7 +112,7 @@ for (const [c, r] of done) {
   if (r.status === "error") log.warnings.push(`${c.url}: item error, will retry next scan: ${r.reason}`);
 }
 
-// 4. Store: memory, the week's pool, the run log.
+// 4. Store: memory, the month's pool, the run log.
 started = new Date();
 const firstSeen = now.toISOString();
 const remembered: SeenEntry[] = done
@@ -138,7 +139,7 @@ const counts: ScanCounts = {
   skippedForLimit,
 };
 log.counts = counts;
-recordPhase(log, { name: "store", model: null, startedAt: started, notes: [`${remembered.length} added to memory`, `${kept.length} added to the ${week} pool as they passed (${kept.filter(fromExplore).length} from explore)`] }, new Date());
+recordPhase(log, { name: "store", model: null, startedAt: started, notes: [`${remembered.length} added to memory`, `${kept.length} added to the ${month} pool as they passed (${kept.filter(fromExplore).length} from explore)`] }, new Date());
 
 finishRun(log, new Date());
 const logPath = await writeRunLog(RUNS_DIR, log);

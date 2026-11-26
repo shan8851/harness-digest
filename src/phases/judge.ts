@@ -39,7 +39,7 @@ export async function judge(input: { url: string; summary: Summary; pageText: st
     fallbacks: "default",
     output_config: { effort: EFFORT.judge, format: betaZodOutputFormat(VerdictSchema) },
     system: [
-      "You are the judge for a weekly digest about agentic engineering. Apply the rubric below strictly.",
+      "You are the judge for a monthly digest about agentic engineering. Apply the rubric below strictly.",
       "Most of the internet fails this test. Pass an item only if a working engineer would come away with a specific technique to try this week.",
       "Check the card against the page text: if the card claims a technique the page doesn't actually teach, fail it. Quotes are checked separately in code, so don't judge the quote.",
       "",

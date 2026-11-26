@@ -3,14 +3,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { Theme } from "../config/settings.js";
-import { appendPool, carryOver, isoWeek, loadPool, pickIssue, weakestTheme, type PoolEntry } from "../src/lib/pool.js";
+import { monthKey, monthName, previousMonth } from "../src/lib/months.js";
+import { appendPool, loadPool, pickIssue, weakestTheme, type PoolEntry } from "../src/lib/pool.js";
 import { mapLimited } from "../src/phases/item.js";
 
 let n = 0;
-function entry(score: number, opts: { theme?: Theme; explore?: boolean; title?: string } = {}): PoolEntry {
+function entry(score: number, opts: { theme?: Theme; explore?: boolean; title?: string; site?: string } = {}): PoolEntry {
   n++;
   return {
-    url: `https://example.com/${n}`,
+    url: `https://${opts.site ?? "example.com"}/${n}`,
     key: `example.com/${n}`,
     foundBy: opts.explore ? "explore: verification" : "Simon Willison",
     source: "example.com",
@@ -31,15 +32,20 @@ function entry(score: number, opts: { theme?: Theme; explore?: boolean; title?: 
   };
 }
 
-describe("isoWeek", () => {
-  it("runs Monday to Sunday, so Sunday's issue covers that week's scans", () => {
-    expect(isoWeek(new Date("2026-10-19T02:00:00Z"))).toBe("2026-W43"); // Monday
-    expect(isoWeek(new Date("2026-10-25T06:30:00Z"))).toBe("2026-W43"); // Sunday
-    expect(isoWeek(new Date("2026-10-26T02:00:00Z"))).toBe("2026-W44"); // next Monday
+describe("months", () => {
+  it("files a scan under the UTC month it ran in", () => {
+    expect(monthKey(new Date("2026-11-30T23:59:00Z"))).toBe("2026-11");
+    expect(monthKey(new Date("2026-12-01T00:00:00Z"))).toBe("2026-12");
   });
 
-  it("handles the year boundary the ISO way", () => {
-    expect(isoWeek(new Date("2027-01-01T00:00:00Z"))).toBe("2026-W53");
+  it("sends the issue on the 1st for the month just ended, across the year boundary", () => {
+    expect(previousMonth(new Date("2026-12-01T06:30:00Z"))).toBe("2026-11");
+    expect(previousMonth(new Date("2027-01-01T06:30:00Z"))).toBe("2026-12");
+  });
+
+  it("names a month the way the issue title shows it", () => {
+    expect(monthName("2026-12")).toBe("December 2026");
+    expect(monthName("2027-01")).toBe("January 2027");
   });
 });
 
@@ -72,46 +78,36 @@ describe("pickIssue", () => {
     ]);
   });
 
-  it("returns an empty issue for an empty week", () => {
+  it("takes at most the capped number from one site, filling the rest from others", () => {
+    const pool = [entry(9, { site: "dev.to" }), entry(9, { site: "dev.to" }), entry(8, { site: "dev.to" }), entry(6)];
+    const picks = pickIssue(pool, { maxItems: 3, minFromExplore: 0, siteCaps: { "dev.to": 2 } });
+    expect(picks.map((p) => [p.verdict.score, new URL(p.url).hostname])).toEqual([
+      [9, "dev.to"],
+      [9, "dev.to"],
+      [6, "example.com"],
+    ]);
+  });
+
+  it("won't swap in an explore find that would break a site cap", () => {
+    const pool = [entry(9, { site: "dev.to" }), entry(9, { site: "dev.to" }), entry(8), entry(7, { explore: true, site: "dev.to" }), entry(5, { explore: true })];
+    const picks = pickIssue(pool, { maxItems: 3, minFromExplore: 1, siteCaps: { "dev.to": 2 } });
+    expect(picks.map((p) => p.verdict.score)).toEqual([9, 9, 5]);
+  });
+
+  it("returns an empty issue for an empty month", () => {
     expect(pickIssue([])).toEqual([]);
   });
 });
 
-describe("carryOver", () => {
-  it("gives last week's strong, unfeatured items one more chance, flagged as carried over", () => {
-    const strong = entry(9);
-    const featuredOne = entry(9);
-    const weak = entry(7);
-    const carried = carryOver([strong, featuredOne, weak], new Set([featuredOne.key]), 8);
-    expect(carried.map((e) => [e.key, e.carriedOver])).toEqual([[strong.key, true]]);
-  });
-});
-
-describe("pickIssue with carry-over", () => {
-  it("ranks a carried-over item one point lower, so a fresh item of equal standing wins", () => {
-    const carried9 = { ...entry(9), carriedOver: true };
-    const fresh8 = entry(8);
-    const fresh7 = entry(7);
-    const picks = pickIssue([fresh7, carried9, fresh8], { maxItems: 2, minFromExplore: 0 });
-    expect(picks).toEqual([fresh8, carried9]); // the carried 9 ranks as 8; fresh wins the tie; 7 misses out
-  });
-
-  it("still lets a carried-over item beat weaker fresh ones", () => {
-    const carried10 = { ...entry(10), carriedOver: true };
-    const fresh8 = entry(8);
-    expect(pickIssue([fresh8, carried10], { maxItems: 1, minFromExplore: 0 })).toEqual([carried10]);
-  });
-});
-
 describe("appendPool and loadPool", () => {
-  it("appends to the week's file, and treats a missing week as empty", async () => {
+  it("appends to the month's file, and treats a missing month as empty", async () => {
     const dir = await mkdtemp(join(tmpdir(), "pool-"));
     try {
-      expect(await loadPool(dir, "2026-W43")).toEqual([]);
+      expect(await loadPool(dir, "2026-11")).toEqual([]);
       const [a, b] = [entry(8), entry(7)];
-      await appendPool(dir, "2026-W43", [a]);
-      await appendPool(dir, "2026-W43", [b]);
-      expect((await loadPool(dir, "2026-W43")).map((e) => e.key)).toEqual([a.key, b.key]);
+      await appendPool(dir, "2026-11", [a]);
+      await appendPool(dir, "2026-11", [b]);
+      expect((await loadPool(dir, "2026-11")).map((e) => e.key)).toEqual([a.key, b.key]);
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

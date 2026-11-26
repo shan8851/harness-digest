@@ -18,11 +18,10 @@ export interface IssueItem {
   summary: Summary;
   verdict: Verdict;
   publishedDate: string | null;
-  carriedOver?: boolean; // unpicked last week, given one more chance
 }
 
 export interface IssueInput {
-  title: string; // e.g. "harness-digest · 2026-W43"
+  title: string; // e.g. "harness-digest · December 2026"
   intro: string;
   items: IssueItem[];
   /** The bonus listen: at most a podcast or two that cleared a higher bar. Shown after the main cards. */
@@ -52,7 +51,6 @@ export function metaLine(item: IssueItem): string {
     THEME_LABELS[item.verdict.theme],
     `${item.verdict.score}/10`,
     item.publishedDate ? shortDate(item.publishedDate) : null,
-    item.carriedOver ? "from last week" : null,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -67,7 +65,7 @@ const showContents = (issue: IssueInput) => issue.items.length >= 2;
 
 export function renderMarkdown(issue: IssueInput): string {
   const contents = showContents(issue)
-    ? ["## This week", "", ...issue.items.map((item, i) => `${i + 1}. **${item.summary.title}**: ${item.summary.idea}`), ""]
+    ? ["## This month", "", ...issue.items.map((item, i) => `${i + 1}. **${item.summary.title}**: ${item.summary.idea}`), ""]
     : [];
   const card = (item: IssueItem, label: string) =>
     [
@@ -136,7 +134,7 @@ export function renderHtml(issue: IssueInput): string {
   const muted = "color:#6b7280";
   const contents = showContents(issue)
     ? `<div style="margin:0 0 32px;padding:16px 18px;background:#f9fafb;border-radius:8px">
-        <div style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;${muted};margin:0 0 10px">This week</div>
+        <div style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;${muted};margin:0 0 10px">This month</div>
         <ol style="margin:0;padding-left:20px">${issue.items
           .map((item) => `<li style="margin:0 0 8px"><strong>${escapeHtml(item.summary.title)}</strong><br><span style="${muted}">${escapeHtml(item.summary.idea)}</span></li>`)
           .join("")}</ol>

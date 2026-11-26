@@ -12,7 +12,8 @@ import { loadSeen } from "./lib/dedupe.js";
 import { lookbackFrom, newRunLog, readRunLogs } from "./lib/runLog.js";
 import { describeUsage } from "./lib/usage.js";
 import { runExplore } from "./phases/explore.js";
-import { isoWeek, loadPool, weakestTheme } from "./lib/pool.js";
+import { monthKey } from "./lib/months.js";
+import { loadPool, weakestTheme } from "./lib/pool.js";
 import { loadSeeds } from "./lib/sources.js";
 import { sweepSeeds } from "./phases/seedSweep.js";
 
@@ -20,7 +21,7 @@ const { seeds, seedSources } = await loadSeeds();
 const now = new Date();
 const since = lookbackFrom(await readRunLogs(PATHS.runs), now);
 const seen = await loadSeen(PATHS.memory);
-const weakest = weakestTheme(await loadPool(PATHS.pool, isoWeek(now)));
+const weakest = weakestTheme(await loadPool(PATHS.pool, monthKey(now)));
 
 const sweep = await sweepSeeds(seeds, { since, seen });
 console.log(`Seed sweep: ${sweep.candidates.length} candidates (excluded from explore)\n`);

@@ -1,33 +1,33 @@
 # harness-digest
 
-A small agent harness that reads the internet twice a week so I don't have to.
+A small agent harness that reads the internet every week so I don't have to.
 
-**Read the issues:** [shan8851.com/digest](https://shan8851.com/digest), every weekly issue with the judge's verdicts.
+**Read the issues:** [shan8851.com/digest](https://shan8851.com/digest), every issue with the judge's verdicts.
 
-Every Monday and Thursday it searches for instructive writing, repos and threads on **agentic engineering**: how people shape AI agents to produce solid, verified work. A Sonnet model finds and summarises; an Opus model judges whether each item has a real teaching moment; plain code checks the work. Once a week the best five to seven items land in my inbox and in [`issues/`](issues/).
+Every Monday it searches for instructive writing, repos and threads on **agentic engineering**: how people shape AI agents to produce solid, verified work. A Sonnet model finds and summarises; an Opus model judges whether each item has a real teaching moment; plain code checks the work. On the 1st of each month the best ten land in my inbox and in [`issues/`](issues/).
 
 The harness is also the practice: it's built from the patterns it reads about. Fixed phases, quotas enforced in code rather than in prompts, a separate judge, a verifier that checks quotes against the source, self-pruning memory, and a readable log for every run.
 
-**Status:** live. Scans run Monday and Thursday; the first issue went out on 20 October 2026. See [docs/SPEC.md](docs/SPEC.md).
+**Status:** live. The first issue went out on 20 October 2026. It was weekly until November 2026 and is monthly from December: a weekly issue was more than I kept up with. See [docs/SPEC.md](docs/SPEC.md).
 
 ## Develop
 
 ```bash
 pnpm install
-pnpm check            # typecheck + tests
-pnpm sweep            # the seed sweep on its own: free, read-only
-pnpm smoke <urls>     # judge and email hand-picked links (local outputs only)
-pnpm scan             # a full scan: writes memory, the pool and a run log
-pnpm weekly --dry-run # build this week's issue without sending or marking anything
+pnpm check             # typecheck + tests
+pnpm sweep             # the seed sweep on its own: free, read-only
+pnpm smoke <urls>      # judge and email hand-picked links (local outputs only)
+pnpm scan              # a full scan: writes memory, the pool and a run log
+pnpm monthly --dry-run # build last month's issue without sending or marking anything
 ```
 
-Keys come from `.env` locally and from repository secrets in GitHub Actions. The workflows in [`.github/workflows/`](.github/workflows/) run the scans on Monday and Thursday and send the issue on Sunday; see [docs/SPEC.md](docs/SPEC.md#running-it).
+Keys come from `.env` locally and from repository secrets in GitHub Actions. The workflows in [`.github/workflows/`](.github/workflows/) run a scan every Monday and send the issue on the 1st; see [docs/SPEC.md](docs/SPEC.md#running-it).
 
 ## How it works
 
 ```
 scan:     seed sweep → explore → dedupe + quotas → summarise → judge → verify → store
-weekly:   pick the best → write the issue → email it → commit it
+monthly:  pick the best → write the issue → email it → commit it
 ```
 
 - What counts: [config/themes.md](config/themes.md)

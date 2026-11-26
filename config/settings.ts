@@ -6,11 +6,11 @@
 // issues/ is the readable archive.
 export const PATHS = {
   memory: "generated/memory.jsonl", // every link considered in the last 30 days
-  pool: "generated/pool", // one file per ISO week of passing items
+  pool: "generated/pool", // one file per month of passing items (older files are per ISO week)
   runs: "generated/runs", // one JSON log per run
-  verdicts: "generated/verdicts", // one file per ISO week of every judge verdict, pass or fail, for evals
+  verdicts: "generated/verdicts", // one file per month of every judge verdict, pass or fail, for evals
   evals: "evals", // hand-labelled eval sets; written by people, not runs
-  issues: "issues", // the weekly issues, as markdown
+  issues: "issues", // the monthly issues (and the earlier weekly ones), as markdown
   local: "generated/local", // smoke and explore outputs; git-ignored
 } as const;
 
@@ -24,7 +24,7 @@ export const THEMES = [
 export type Theme = (typeof THEMES)[number];
 
 // "podcast" is set by the summariser from the page; podcasts only ever appear in the
-// issue's bonus section (see WEEKLY.bonusMinScore).
+// issue's bonus section (see ISSUE.bonusMinScore).
 export const CONTENT_TYPES = ["blog", "repo", "thread", "podcast"] as const;
 export type ContentType = (typeof CONTENT_TYPES)[number];
 
@@ -35,7 +35,7 @@ export const MODELS = {
   explore: "claude-sonnet-5-5",
   summarise: "claude-sonnet-5-5",
   judge: "claude-opus-5-5",
-  weeklyIntro: "claude-sonnet-5-5",
+  issueIntro: "claude-sonnet-5-5",
   sameIdea: "claude-sonnet-5-5",
 } as const;
 export type ModelId = (typeof MODELS)[keyof typeof MODELS];
@@ -44,7 +44,7 @@ export type ModelId = (typeof MODELS)[keyof typeof MODELS];
 // summarising is routine reading, so "medium" is plenty.
 export const EFFORT = {
   explore: "medium",
-  weeklyIntro: "low",
+  issueIntro: "low",
   sameIdea: "medium", // "low" grouped items that only shared a theme (tried on W44)
   summarise: "medium",
   judge: "high",
@@ -87,29 +87,31 @@ export const SCAN = {
   concurrency: 4,
 } as const;
 
-export const WEEKLY = {
-  maxItems: 7,
+// The monthly issue, sent on the 1st for the month before. Monthly since
+// December 2026: a weekly issue was more than anyone kept up with, and a
+// month of weekly scans gives ~80 passes to pick ten from.
+export const ISSUE = {
+  maxItems: 10,
   // At least this many items explore found, when any passed, so the issue
   // isn't only the seed list's usual names.
-  minFromExplore: 2,
-  // Carry-over: last week's unpicked items scoring at least this get one more
-  // chance, ranked this many points lower so fresh items win ties. After that
-  // week they're gone for good.
-  carryOverMinScore: 8,
-  carryOverPenalty: 1,
+  minFromExplore: 3,
+  // At most this many items from one site per issue. dev.to was over a third
+  // of all passes in W45-W47, mostly the same few ideas rewritten, and every
+  // near-duplicate the same-idea check caught was a dev.to post.
+  siteCaps: { "dev.to": 2 } as Record<string, number>,
   // Podcasts never go in the main list. The best one scoring at least this
-  // goes in a "bonus listen" section; most weeks there won't be one.
+  // goes in a "bonus listen" section; most months there won't be one.
   bonusMinScore: 8,
   maxBonus: 1,
   // Before picking, the top this-many items go to a small model that groups
   // ones teaching the same idea, and only the best of each group is kept.
   // Title matching alone missed two near-identical template repos (W44).
-  sameIdeaWindow: 15,
+  sameIdeaWindow: 20,
   // "log" records the groups in the run log without dropping anything; "drop"
-  // acts on them. Starts in "log": on W43 and W44 the model grouped some real
-  // duplicates but also items that only shared a passing technique. Switch to
-  // "drop" once a few weeks of logs show the groups are right.
-  sameIdeaMode: "log" as "log" | "drop",
+  // acts on them. Ran in "log" for W43-W47: four of five groups were real
+  // duplicates, and code only ever drops the weaker item. A month's pool has
+  // far more overlap than a week's, so it drops now.
+  sameIdeaMode: "drop" as "log" | "drop",
 } as const;
 
 export const EXPLORE = {
@@ -157,8 +159,10 @@ export const ITEMS = {
   // this many times before the item is dropped.
   maxCardRevisions: 2,
   // Dated items published longer ago than this are dropped. Undated items
-  // (many repos and threads) are allowed; memory stops them repeating.
-  maxAgeDays: 7,
+  // (many repos and threads) are allowed; memory stops them repeating. A day
+  // more than the week between scans, because GitHub starts scheduled runs
+  // hours late and unevenly.
+  maxAgeDays: 8,
   // The judge's score must be at least this to pass, whatever it says.
   minScore: 5,
 } as const;
@@ -168,11 +172,14 @@ export const MEMORY = {
   // the file stays at a steady ~600-700 lines however long the harness runs.
   // Longer than maxAgeDays, so anything that ages out of memory would already
   // fail the freshness check. The issues/ archive is the permanent record.
-  seenRetentionDays: 30,
+  // Longer than a month too, so nothing in a month's pool is pruned before
+  // the issue on the 1st can mark it featured.
+  seenRetentionDays: 40,
   // Two titles at or above this word-overlap score count as the same story.
   titleSimilarityThreshold: 0.8,
   // A scan never looks back further than this, even after a long outage.
-  maxLookbackDays: 7,
+  // Scans are a week apart; the spare day covers GitHub's late starts.
+  maxLookbackDays: 8,
 } as const;
 
 export const EVALS = {

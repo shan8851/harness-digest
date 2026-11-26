@@ -1,4 +1,4 @@
-# A scan: seed sweep, explore, judge, and save the passes to this week's pool.
+# A scan: seed sweep, explore, judge, and save the passes to this month's pool.
 # Commits generated/ (memory, pool, run log) back to main.
 #
 # Runs on the schedule below, or by hand: Actions tab → "scan" → "Run workflow".
@@ -8,13 +8,13 @@ name: scan
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 2 * * 1,4" # 02:00 UTC every Monday and Thursday
+    - cron: "0 2 * * 1" # 02:00 UTC every Monday
   # Never add pull_request or pull_request_target: forks must not reach the secrets.
 
 permissions:
   contents: write # to commit generated/ back; nothing else
 
-# Scans and the weekly issue share state, so they queue rather than overlap.
+# Scans and the monthly issue share state, so they queue rather than overlap.
 concurrency:
   group: harness-digest-state
   cancel-in-progress: false

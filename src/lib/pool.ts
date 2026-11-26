@@ -1,10 +1,11 @@
-// The week's pool: every item that passed the judge and verification in this
-// ISO week's scans (Monday to Sunday), waiting for the weekly issue to pick the
-// best. One JSONL file per week under PATHS.pool, committed with the rest of generated/.
+// The month's pool: every item that passed the judge and verification in that
+// month's scans, waiting for the issue on the 1st to pick the best. One JSONL
+// file per month under PATHS.pool (e.g. 2026-11.jsonl), committed with the rest
+// of generated/. Files named by ISO week (2026-W45.jsonl) are from the weekly era.
 
 import { appendFile, mkdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { ITEMS, MEMORY, THEMES, WEEKLY, type Theme } from "../../config/settings.js";
+import { ISSUE, ITEMS, MEMORY, THEMES, type Theme } from "../../config/settings.js";
 import type { IssueItem } from "../issue/render.js";
 import { titleSimilarity } from "./dedupe.js";
 
@@ -31,32 +32,11 @@ export function adjustedScore(item: IssueItem): number {
   return Math.min(10, Math.max(ITEMS.minScore, nudged));
 }
 
-/** The score used for ranking: the adjusted score, minus the handicap for carried-over items. */
-export const rankScore = (entry: PoolEntry) => adjustedScore(entry) - (entry.carriedOver ? WEEKLY.carryOverPenalty : 0);
+const poolFile = (dir: string, month: string) => join(dir, `${month}.jsonl`);
 
-/**
- * Last week's strong items that weren't picked, flagged for one more chance.
- * Only the previous week is ever read, so nothing carries over twice.
- */
-export function carryOver(previousWeek: PoolEntry[], featured: Set<string>, minScore: number = WEEKLY.carryOverMinScore): PoolEntry[] {
-  return previousWeek.filter((e) => !featured.has(e.key) && adjustedScore(e) >= minScore).map((e) => ({ ...e, carriedOver: true }));
-}
-
-/** ISO 8601 week, e.g. "2026-W43". Weeks run Monday to Sunday, so Sunday's issue covers that week's scans. */
-export function isoWeek(date: Date): string {
-  const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-  const day = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - day); // the Thursday of this week decides the year
-  const yearStart = Date.UTC(d.getUTCFullYear(), 0, 1);
-  const week = Math.ceil(((d.getTime() - yearStart) / 86_400_000 + 1) / 7);
-  return `${d.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
-}
-
-const poolFile = (dir: string, week: string) => join(dir, `${week}.jsonl`);
-
-export async function loadPool(dir: string, week: string): Promise<PoolEntry[]> {
+export async function loadPool(dir: string, month: string): Promise<PoolEntry[]> {
   try {
-    const text = await readFile(poolFile(dir, week), "utf8");
+    const text = await readFile(poolFile(dir, month), "utf8");
     return text.split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l) as PoolEntry);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
@@ -65,33 +45,30 @@ export async function loadPool(dir: string, week: string): Promise<PoolEntry[]> 
 }
 
 /**
- * Appends to the week's file. A true append (never read-modify-write), so the
+ * Appends to the month's file. A true append (never read-modify-write), so the
  * scan can save each item the moment it passes, from parallel workers, and a
  * crash later in the run can't lose cards that were already paid for.
  */
-export async function appendPool(dir: string, week: string, entries: PoolEntry[]): Promise<void> {
+export async function appendPool(dir: string, month: string, entries: PoolEntry[]): Promise<void> {
   if (entries.length === 0) return;
   await mkdir(dir, { recursive: true });
-  await appendFile(poolFile(dir, week), entries.map((e) => JSON.stringify(e) + "\n").join(""), "utf8");
+  await appendFile(poolFile(dir, month), entries.map((e) => JSON.stringify(e) + "\n").join(""), "utf8");
 }
 
 // When themes tie on passes, push the one that's hardest to find first.
 const TIE_ORDER: Theme[] = ["non-engineers", "real-setups", "lighter-review", "verification", "harness-design"];
 
-/** Highest rank score first; on a tie, fresh items beat carried-over ones, then newest first. */
+/** Highest adjusted score first, newest first on a tie. */
 export function rankPool(pool: PoolEntry[]): PoolEntry[] {
   return [...pool].sort(
-    (a, b) =>
-      rankScore(b) - rankScore(a) ||
-      Number(Boolean(a.carriedOver)) - Number(Boolean(b.carriedOver)) ||
-      (b.publishedDate ?? b.scannedAt).localeCompare(a.publishedDate ?? a.scannedAt),
+    (a, b) => adjustedScore(b) - adjustedScore(a) || (b.publishedDate ?? b.scannedAt).localeCompare(a.publishedDate ?? a.scannedAt),
   );
 }
 
-/** The bonus listen: the best podcasts at or above the bonus bar. Most weeks, none. */
+/** The bonus listen: the best podcasts at or above the bonus bar. Most months, none. */
 export function pickBonus(pool: PoolEntry[], options: { minScore?: number; maxItems?: number } = {}): PoolEntry[] {
-  const minScore = options.minScore ?? WEEKLY.bonusMinScore;
-  return rankPool(pool.filter((e) => isPodcast(e) && rankScore(e) >= minScore)).slice(0, options.maxItems ?? WEEKLY.maxBonus);
+  const minScore = options.minScore ?? ISSUE.bonusMinScore;
+  return rankPool(pool.filter((e) => isPodcast(e) && adjustedScore(e) >= minScore)).slice(0, options.maxItems ?? ISSUE.maxBonus);
 }
 
 /**
@@ -125,23 +102,35 @@ export function dropSameIdea(pool: PoolEntry[], groups: string[][]): { kept: Poo
   return { kept: pool.filter((e) => !drop.has(e.key)), dropped };
 }
 
-/** The theme with the fewest passes so far this week; explore pushes it hardest. */
+/** The theme with the fewest passes so far this month; explore pushes it hardest. */
 export function weakestTheme(pool: PoolEntry[]): Theme {
   const counts = new Map(THEMES.map((t) => [t, 0]));
   for (const entry of pool) counts.set(entry.verdict.theme, (counts.get(entry.verdict.theme) ?? 0) + 1);
   return [...TIE_ORDER].sort((a, b) => counts.get(a)! - counts.get(b)!)[0]!;
 }
 
+/** The site an item counts against for ISSUE.siteCaps: the URL's host, without www. */
+export const siteOf = (entry: { url: string }) => new URL(entry.url).hostname.replace(/^www\./, "");
+
 /**
- * Picks the issue from the week's pool: highest judge score first (newest on
- * ties), one card per story, and at least WEEKLY.minFromExplore items that
- * explore found, when any passed, so the issue isn't just the usual names.
+ * Picks the issue from the month's pool: highest judge score first (newest on
+ * ties), one card per story, no more than ISSUE.siteCaps allows from one site,
+ * and at least ISSUE.minFromExplore items that explore found, when any passed,
+ * so the issue isn't just the usual names.
  */
-export function pickIssue(pool: PoolEntry[], options: { maxItems?: number; minFromExplore?: number } = {}): PoolEntry[] {
-  const maxItems = options.maxItems ?? WEEKLY.maxItems;
-  const minFromExplore = options.minFromExplore ?? WEEKLY.minFromExplore;
+export function pickIssue(
+  pool: PoolEntry[],
+  options: { maxItems?: number; minFromExplore?: number; siteCaps?: Record<string, number> } = {},
+): PoolEntry[] {
+  const maxItems = options.maxItems ?? ISSUE.maxItems;
+  const minFromExplore = options.minFromExplore ?? ISSUE.minFromExplore;
+  const siteCaps = options.siteCaps ?? ISSUE.siteCaps;
   // Podcasts never go in the main list; see pickBonus.
   const ranked = rankPool(pool.filter((e) => !isPodcast(e)));
+  const fits = (list: PoolEntry[], entry: PoolEntry) => {
+    const cap = siteCaps[siteOf(entry)];
+    return cap === undefined || list.filter((e) => siteOf(e) === siteOf(entry)).length < cap;
+  };
 
   // One card per story: drop anything too similar to a higher-ranked item.
   const distinct: PoolEntry[] = [];
@@ -150,14 +139,21 @@ export function pickIssue(pool: PoolEntry[], options: { maxItems?: number; minFr
     distinct.push(entry);
   }
 
-  const picked = distinct.slice(0, maxItems);
-  const spare = distinct.slice(maxItems).filter(fromExplore);
-  // Swap the lowest-ranked seed items for the best spare explore items until the minimum is met.
-  while (picked.filter(fromExplore).length < minFromExplore && spare.length) {
+  const picked: PoolEntry[] = [];
+  const spare: PoolEntry[] = [];
+  for (const entry of distinct) {
+    if (picked.length < maxItems && fits(picked, entry)) picked.push(entry);
+    else if (fromExplore(entry)) spare.push(entry);
+  }
+  // Swap the lowest-ranked seed items for the best spare explore items until
+  // the minimum is met, skipping any spare that would break a site cap.
+  while (picked.filter(fromExplore).length < minFromExplore) {
     const lowestSeed = picked.map((e, i) => [e, i] as const).reverse().find(([e]) => !fromExplore(e));
     if (!lowestSeed) break;
-    picked.splice(lowestSeed[1], 1);
-    picked.push(spare.shift()!);
+    const rest = picked.filter((_, i) => i !== lowestSeed[1]);
+    const next = spare.findIndex((e) => fits(rest, e));
+    if (next === -1) break;
+    picked.splice(0, picked.length, ...rest, ...spare.splice(next, 1));
   }
-  return picked.sort((a, b) => rankScore(b) - rankScore(a) || Number(Boolean(a.carriedOver)) - Number(Boolean(b.carriedOver)));
+  return rankPool(picked);
 }

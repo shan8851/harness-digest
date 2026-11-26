@@ -1,13 +1,14 @@
-# The weekly issue: picks the best of the week's pool, writes issues/<week>.md,
-# emails it, and marks the picks as featured. Commits issues/ and generated/.
+# The monthly issue: on the 1st, picks the best of last month's pool, writes
+# issues/<YYYY-MM>.md, emails it, and marks the picks as featured. Commits
+# issues/ and generated/.
 #
 # Runs on the schedule below (scheduled runs always send), or by hand:
-# Actions tab → "weekly" → "Run workflow", choosing:
+# Actions tab → "monthly" → "Run workflow", choosing:
 #   dry-run  builds the issue and prints it; no email, nothing marked, nothing committed
 #   send     the real thing
-# If this week's issue has already gone out, a send skips rather than sending twice.
+# If last month's issue has already gone out, a send skips rather than sending twice.
 
-name: weekly
+name: monthly
 
 on:
   workflow_dispatch:
@@ -18,7 +19,7 @@ on:
         options: [dry-run, send]
         default: dry-run
   schedule:
-    - cron: "30 6 * * 0" # 06:30 UTC every Sunday
+    - cron: "30 6 1 * *" # 06:30 UTC on the 1st of every month
   # Never add pull_request or pull_request_target: forks must not reach the secrets.
 
 permissions:
@@ -29,7 +30,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  weekly:
+  monthly:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -50,10 +51,10 @@ jobs:
       - name: Build and send the issue
         run: |
           if [ "$DRY_RUN" = "true" ]; then
-            pnpm weekly --dry-run
+            pnpm monthly --dry-run
             cat generated/local/*-dry-run.md
           else
-            pnpm weekly
+            pnpm monthly
           fi
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -67,6 +68,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add issues generated
           if git diff --cached --quiet; then echo "Nothing to commit"; exit 0; fi
-          git commit -m "$(node scripts/last-run-summary.mjs weekly)"
+          git commit -m "$(node scripts/last-run-summary.mjs monthly)"
           git pull --rebase
           git push

@@ -12,7 +12,7 @@ import { MEMORY, RUN_LIMITS, type ModelId, type Theme } from "../../config/setti
 import { addUsage, describeUsage, totalTokens, ZERO_USAGE, type UsageTotals } from "./usage.js";
 import type { QuotaResult } from "./quotas.js";
 
-export type RunKind = "scan" | "weekly" | "smoke";
+export type RunKind = "scan" | "monthly" | "weekly" | "smoke"; // "weekly": issue runs before December 2026
 export type RunStatus = "running" | "ok" | "partial" | "failed";
 
 export interface PhaseLog {

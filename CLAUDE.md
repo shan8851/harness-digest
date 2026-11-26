@@ -1,14 +1,14 @@
 # harness-digest
 
-A small public agent harness: two scans a week (Monday and Thursday) find instructive agentic-engineering material, and a weekly issue on Sunday emails the best of it. The design is in [docs/SPEC.md](docs/SPEC.md); read it before changing behaviour.
+A small public agent harness: a scan every Monday finds instructive agentic-engineering material, and a monthly issue on the 1st emails the best of it (weekly until November 2026). The design is in [docs/SPEC.md](docs/SPEC.md); read it before changing behaviour.
 
 ## Commands
 
 - `pnpm install`
 - `pnpm check`: typecheck and tests. Run before every commit.
 - `pnpm test:watch` while working on `src/lib/`.
-- `pnpm sweep` is free. `pnpm scan`, `pnpm explore` and `pnpm smoke` spend real credits (a scan is about $4-5): agree before running them. `pnpm weekly --dry-run` has no side effects.
-- The real runs happen on schedule in GitHub Actions (`.github/workflows/`): scans Monday and Thursday 02:00 UTC, the issue Sunday 06:30 UTC.
+- `pnpm sweep` is free. `pnpm scan`, `pnpm explore` and `pnpm smoke` spend real credits (a scan is about $4-5): agree before running them. `pnpm monthly --dry-run` has no side effects.
+- The real runs happen on schedule in GitHub Actions (`.github/workflows/`): a scan every Monday 02:00 UTC, the issue on the 1st at 06:30 UTC.
 
 ## How the code is laid out
 
@@ -17,8 +17,8 @@ A small public agent harness: two scans a week (Monday and Thursday) find instru
 - `config/sources.json`: seed sources and their stats. The scan updates it.
 - `src/lib/`: deterministic, pure-ish helpers with tests (URLs, dedupe, quotas, usage, run logs).
 - `src/phases/`: one file per pipeline phase. Phases are where the API is called.
-- `generated/`: memory, the weekly pool and run logs, written by runs and committed. Don't hand-edit except to fix a bad entry. All paths are in `PATHS` in settings.
-- `issues/`: the weekly issues, the readable archive.
+- `generated/`: memory, the monthly pool and run logs, written by runs and committed. Don't hand-edit except to fix a bad entry. All paths are in `PATHS` in settings.
+- `issues/`: the issues, the readable archive (`YYYY-MM.md`; the earlier weekly ones are `YYYY-Www.md`). shan8851.com/digest reads them straight from the repo, so a change to the issue layout or file names needs a matching change in `shan_site/lib/digest.ts`.
 - `docs/ROADMAP.md`: tuning ideas and later features. Let it run before tuning.
 
 ## Principles (from the spec)

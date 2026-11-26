@@ -1,5 +1,5 @@
-// Every judge verdict, pass or fail, one JSONL file per ISO week under
-// PATHS.verdicts. The pool only keeps passes and memory only keeps a status,
+// Every judge verdict, pass or fail, one JSONL file per month under
+// PATHS.verdicts (per ISO week before December 2026). The pool only keeps passes and memory only keeps a status,
 // so without this a rejected item's score and reason were lost. Evals need
 // both sides: you can't tell whether the judge is too strict from passes alone.
 
@@ -17,11 +17,11 @@ export interface VerdictRecord {
   scannedAt: string; // ISO date of the scan
 }
 
-/** Appends to the week's file: a true append, like the pool, so parallel workers and a late crash lose nothing. */
-export async function appendVerdicts(dir: string, week: string, records: VerdictRecord[]): Promise<void> {
+/** Appends to the month's file: a true append, like the pool, so parallel workers and a late crash lose nothing. */
+export async function appendVerdicts(dir: string, month: string, records: VerdictRecord[]): Promise<void> {
   if (records.length === 0) return;
   await mkdir(dir, { recursive: true });
-  await appendFile(join(dir, `${week}.jsonl`), records.map((r) => JSON.stringify(r) + "\n").join(""), "utf8");
+  await appendFile(join(dir, `${month}.jsonl`), records.map((r) => JSON.stringify(r) + "\n").join(""), "utf8");
 }
 
 /** Every record from every .jsonl file in `dir`, oldest file first. Missing directory means none yet. */

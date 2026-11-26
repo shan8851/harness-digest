@@ -4,10 +4,10 @@
 
 import { describe, expect, it } from "vitest";
 import { renderMarkdown, renderText } from "../src/issue/render.js";
-import { adjustedScore, carryOver, dropSameIdea, pickBonus, pickIssue, type PoolEntry } from "../src/lib/pool.js";
+import { adjustedScore, dropSameIdea, pickBonus, pickIssue, type PoolEntry } from "../src/lib/pool.js";
 
 let n = 0;
-function entry(score: number, opts: { readability?: number; podcast?: boolean; carriedOver?: boolean } = {}): PoolEntry {
+function entry(score: number, opts: { readability?: number; podcast?: boolean } = {}): PoolEntry {
   n++;
   return {
     url: `https://example.com/${n}`,
@@ -28,7 +28,6 @@ function entry(score: number, opts: { readability?: number; podcast?: boolean; c
       minutes: 5,
     },
     verdict: { pass: true, score, theme: "verification", reason: "Good.", ...(opts.readability === undefined ? {} : { readability: opts.readability }) },
-    ...(opts.carriedOver ? { carriedOver: true } : {}),
   };
 }
 
@@ -52,10 +51,6 @@ describe("adjustedScore", () => {
 
   it("ignores readability for podcasts, which are listened to", () => {
     expect(adjustedScore(entry(8, { podcast: true, readability: -1 }))).toBe(8);
-  });
-
-  it("decides carry-over on the adjusted score", () => {
-    expect(carryOver([entry(7, { readability: 1 }), entry(8, { readability: -1 })], new Set())).toHaveLength(1);
   });
 });
 

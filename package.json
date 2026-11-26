@@ -2,7 +2,7 @@
   "name": "harness-digest",
   "version": "0.1.0",
   "private": true,
-  "description": "A small agent harness that finds instructive agentic-engineering material and sends a weekly digest.",
+  "description": "A small agent harness that finds instructive agentic-engineering material and sends a monthly digest.",
   "type": "module",
   "packageManager": "pnpm@11.3.0",
   "engines": {
@@ -17,7 +17,7 @@
     "sweep": "tsx src/sweep.ts",
     "explore": "node --env-file-if-exists=.env --import tsx src/explore.ts",
     "scan": "node --env-file-if-exists=.env --import tsx src/scan.ts",
-    "weekly": "node --env-file-if-exists=.env --import tsx src/weekly.ts",
+    "monthly": "node --env-file-if-exists=.env --import tsx src/monthly.ts",
     "eval:judge": "tsx src/evalJudge.ts"
   },
   "dependencies": {

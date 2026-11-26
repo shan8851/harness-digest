@@ -59,8 +59,8 @@ describe("lookbackFrom", () => {
   });
 
   it("never looks back further than the cap", () => {
-    expect(lookbackFrom([pastRun("2026-09-01T02:00:00Z", "ok")], now).toISOString()).toBe("2026-10-16T02:00:00.000Z");
-    expect(lookbackFrom([], now).toISOString()).toBe("2026-10-16T02:00:00.000Z");
+    expect(lookbackFrom([pastRun("2026-09-01T02:00:00Z", "ok")], now).toISOString()).toBe("2026-10-15T02:00:00.000Z");
+    expect(lookbackFrom([], now).toISOString()).toBe("2026-10-15T02:00:00.000Z");
   });
 });
 
